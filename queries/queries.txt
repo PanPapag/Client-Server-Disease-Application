@@ -1,20 +1,20 @@
-/numPatientDischarges SARS-COV-2 02-01-2020 05-01-2020 China 
-/diseaseFrequency SARS-1 08-01-2020 08-01-2020
-/numPatientDischarges SARS-1 06-01-2020 07-01-2020 USA
-/diseaseFrequency H1N1 02-01-2020 02-01-2020 Germany
-/searchPatientRecord 721
-/numPatientDischarges EVD 01-01-2020 02-01-2020 China
-/diseaseFrequency COVID-2019 07-01-2020 07-01-2020
-/topk-AgeRanges 3 country H1N1 02-01-2020 09-01-2020
-/searchPatientRecord 273
-/diseaseFrequency EVD 08-01-2020 09-01-2020
-/topk-AgeRanges 2 country SARS-COV-2 09-01-2020 09-01-2020
-/numPatientAdmissions MERS-COV 06-01-2020 08-01-2020 Vietnam
-/numPatientDischarges COVID-2019 02-01-2020 05-01-2020 USA
-/numPatientDischarges COVID-2019 07-01-2020 08-01-2020 Vietnam
-/diseaseFrequency FLU-2018 04-01-2020 07-01-2020
-/topk-AgeRanges 2 country SARS-COV-2 01-01-2020 06-01-2020
-/diseaseFrequency FLU-2018 05-01-2020 09-01-2020 USA
-/numPatientAdmissions FLU-2018 08-01-2020 09-01-2020 Australia
-/topk-AgeRanges 2 country EVD 05-01-2020 09-01-2020
-/searchPatientRecord 652
+/numPatientDischarges SARS-COV-2 07-01-2020 08-01-2020  
+/numPatientAdmissions FLU-2018 09-01-2020 09-01-2020 Italy 
+/topk-AgeRanges 4 Vietnam FLU-2018 03-01-2020 08-01-2020 
+/diseaseFrequency FLU-2018 04-01-2020 05-01-2020  
+/numPatientDischarges SARS-1 03-01-2020 03-01-2020  
+/numPatientDischarges FLU-2018 09-01-2020 09-01-2020  
+/numPatientAdmissions COVID-2019 05-01-2020 08-01-2020  
+/topk-AgeRanges 3 USA SARS-1 02-01-2020 02-01-2020 
+/numPatientAdmissions COVID-2019 06-01-2020 07-01-2020 Denmark 
+/diseaseFrequency SARS-1 09-01-2020 09-01-2020  
+/numPatientDischarges MERS-COV 07-01-2020 09-01-2020  
+/topk-AgeRanges 4 Brazil COVID-2019 01-01-2020 09-01-2020 
+/numPatientDischarges FLU-2018 02-01-2020 04-01-2020  
+/topk-AgeRanges 4 Switzerland FLU-2018 04-01-2020 05-01-2020 
+/numPatientDischarges SARS-1 04-01-2020 09-01-2020 Greece 
+/topk-AgeRanges 1 Germany SARS-1 08-01-2020 08-01-2020 
+/numPatientAdmissions SARS-1 02-01-2020 07-01-2020 France 
+/diseaseFrequency EVD 04-01-2020 06-01-2020 France 
+/searchPatientRecord 170 
+/diseaseFrequency COVID-2019 02-01-2020 08-01-2020 China 

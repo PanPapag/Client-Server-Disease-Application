@@ -12,7 +12,7 @@ def make_args_parser():
     # fill parser with information about program arguments
     parser.add_argument('--queryFile', default='queries.txt',
                          help='Name of the output query file', metavar='')
-    parser.add_argument('--numQueries', default=20,
+    parser.add_argument('--numQueries', default=20, type=int,
                          help='Number of queries to generate', metavar='')
     parser.add_argument('--commandsFile', default='../data/commands.txt',
                          help='File with command names', metavar='')
@@ -20,9 +20,9 @@ def make_args_parser():
                          help='File with country names', metavar='')
     parser.add_argument('--diseasesFile', default='../data/diseases.txt',
                          help='File with disease names', metavar='')
-    parser.add_argument('--maxK', default=4,
+    parser.add_argument('--maxK', default=4, type=int,
                         help='Max k-parameter', metavar='')
-    parser.add_argument('--maxRecordID', default=1000,
+    parser.add_argument('--maxRecordID', default=1000, type=int,
                         help='Max RecordID', metavar='')
     parser.add_argument('--startDate', default='01-01-2020',
                         help='Start date', metavar='')
@@ -77,6 +77,8 @@ def main():
                             token = random.choice(countries)
                         else:
                             token = ''
+                    elif token == 'country':
+                        token = random.choice(countries)
                     elif token == 'k':
                         token = str(random.randint(1, args.maxK))
                     elif token == 'recordID':
