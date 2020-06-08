@@ -1,0 +1,20 @@
+/numPatientDischarges SARS-COV-2 02-01-2020 05-01-2020 China 
+/diseaseFrequency SARS-1 08-01-2020 08-01-2020
+/numPatientDischarges SARS-1 06-01-2020 07-01-2020 USA
+/diseaseFrequency H1N1 02-01-2020 02-01-2020 Germany
+/searchPatientRecord 721
+/numPatientDischarges EVD 01-01-2020 02-01-2020 China
+/diseaseFrequency COVID-2019 07-01-2020 07-01-2020
+/topk-AgeRanges 3 country H1N1 02-01-2020 09-01-2020
+/searchPatientRecord 273
+/diseaseFrequency EVD 08-01-2020 09-01-2020
+/topk-AgeRanges 2 country SARS-COV-2 09-01-2020 09-01-2020
+/numPatientAdmissions MERS-COV 06-01-2020 08-01-2020 Vietnam
+/numPatientDischarges COVID-2019 02-01-2020 05-01-2020 USA
+/numPatientDischarges COVID-2019 07-01-2020 08-01-2020 Vietnam
+/diseaseFrequency FLU-2018 04-01-2020 07-01-2020
+/topk-AgeRanges 2 country SARS-COV-2 01-01-2020 06-01-2020
+/diseaseFrequency FLU-2018 05-01-2020 09-01-2020 USA
+/numPatientAdmissions FLU-2018 08-01-2020 09-01-2020 Australia
+/topk-AgeRanges 2 country EVD 05-01-2020 09-01-2020
+/searchPatientRecord 652
