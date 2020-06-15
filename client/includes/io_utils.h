@@ -30,4 +30,13 @@
 	__NON_NULL__(2)
 	client_options parse_command_line_arguments(int argc, char *argv[]);
 
+	/**
+		\brief Parses the query file line by line. For each line creates a thread
+		in which it stores the current query. It can create up to client_options.num_threads
+		threads per time.
+		@param client_threads: An array to store the client_options.num_threads threads
+	*/
+	__NON_NULL__(1)
+	void parse_query_file_and_create_threads(pthread_t *client_threads);
+
 #endif

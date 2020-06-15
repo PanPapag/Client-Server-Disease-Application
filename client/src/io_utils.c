@@ -1,14 +1,21 @@
 #include <getopt.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../includes/io_utils.h"
 
 #include "../../common/includes/constants.h"
+#include "../../common/includes/file_utils.h"
 #include "../../common/includes/report_utils.h"
 #include "../../common/includes/string_utils.h"
 #include "../../common/includes/types.h"
+
+client_options options;
+
+static pthread_barrier_t barrier;
 
 static inline
 void __usage(void) {
@@ -32,6 +39,7 @@ client_options parse_command_line_arguments(int argc, char *argv[]) {
 		switch (option) {
 			case 'q': {
 				options.query_file = strdup(optarg);
+        // TODO check if exists
 				break;
 			}
 			case 'w': {
@@ -68,4 +76,39 @@ client_options parse_command_line_arguments(int argc, char *argv[]) {
 		}
 	}
 	return options;
+}
+
+static inline
+void *__client_threads_function(void *fl) {
+	char *query = (char*) fl;
+	printf("Waiting... [%s]\n", query);
+
+  pthread_barrier_wait(&barrier);
+
+	printf("Sending... [%s]\n", query);
+}
+
+void parse_query_file_and_create_threads(pthread_t *client_threads) {
+  /* Get the number of lines of the query file */
+  int num_lines;
+  get_file_lines(options.query_file, &num_lines);
+  /*
+    As the description mentions: "When all the threads are created, that is,
+    we have one thread for each command of the file, then the threads should
+    start all together to try to connect to whoServer and send their command.
+
+    Given the statement above, we have to take care of 2 cases.
+    1. num_threads >= num_lines: We create just num_lines threads and nothing more
+    3. num_threads < num_lines: This case is the most complex one. To tackle
+       this problem, when num_threads are fewer than the number of queries, we
+       are going to create (num_lines) div (num_threads) times exactly num_threads
+       threads to serve num_threads queries per time. The last time we are going
+       to create just (num_lines) mod (num_threads) threads to serve the remaining
+       queries.
+  */
+  if (options.num_threads >= num_lines) {
+    printf("CASE 1\n");
+  } else {
+    printf("CASE 2\n");
+  }
 }
