@@ -127,7 +127,44 @@ void parse_query_file_and_create_threads(pthread_t *client_threads) {
     }
 		pthread_barrier_destroy(&barrier);
   } else {
-    printf("CASE 2\n");
+    size_t integral_comm = num_queries / options.num_threads;
+    size_t remaining_comm = num_queries % options.num_threads;
+    /* Complete the integral communications between clients and server */
+    for (size_t i = 0U; i < integral_comm; ++i) {
+      /* Initialize pthread barrier to wait num_threads threads */
+      pthread_barrier_init(&barrier, NULL, options.num_threads );
+      for (size_t j = 0U; j < options.num_threads; ++j) {
+        /* Read query and store it to the buffer */
+        fgets(buffer[j], MAX_BUFFER_SIZE, fp);
+        /* Discard '\n' that fgets() stores */
+        buffer[j][strlen(buffer[j]) - 1] = '\0';
+        /* Create thread */
+        pthread_create(&client_threads[j], NULL, __client_threads_function, (void *)buffer[j]);
+      }
+      /* Wait all threads to finish and destroy barrier */
+      for (size_t j = 0U; j < options.num_threads; ++j) {
+        pthread_join(client_threads[j], NULL);
+      }
+      pthread_barrier_destroy(&barrier);
+    }
+    /* Complete the remaining ones */
+    if (remaining_comm) {
+      /* Initialize pthread barrier to wait remaining_comm threads */
+      pthread_barrier_init(&barrier, NULL, remaining_comm);
+      for (size_t j = 0U; j < remaining_comm; ++j) {
+        /* Read query and store it to the buffer */
+        fgets(buffer[j], MAX_BUFFER_SIZE, fp);
+        /* Discard '\n' that fgets() stores */
+        buffer[j][strlen(buffer[j]) - 1] = '\0';
+        /* Create thread */
+        pthread_create(&client_threads[j], NULL, __client_threads_function, (void *)buffer[j]);
+      }
+      /* Wait all threads to finish and destroy barrier */
+      for (size_t j = 0U; j < remaining_comm; ++j) {
+        pthread_join(client_threads[j], NULL);
+      }
+      pthread_barrier_destroy(&barrier);
+    }
   }
   /* Close file pointer */
   fclose(fp);
