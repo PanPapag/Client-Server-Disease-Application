@@ -19,10 +19,10 @@ void report_error(const char *fmt, ...) {
   __report("[ERROR]: ", fmt, args);
 }
 
-void report_response(const char *fmt, ...) {
+void report_warning(const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-  __report("[RESPONSE]: ", fmt, args);
+  __report("[WARNING]: ", fmt, args);
 }
 
 void die(const char *fmt, ...) {
