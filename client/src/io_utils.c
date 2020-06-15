@@ -39,13 +39,16 @@ client_options parse_command_line_arguments(int argc, char *argv[]) {
 		switch (option) {
 			case 'q': {
 				options.query_file = strdup(optarg);
-        // TODO check if exists
+        if(access(options.query_file, F_OK) == -1) {
+          die("There was an error while checking query filename. "
+              "Please make sure you provide a valid query filename.");
+        }
 				break;
 			}
 			case 'w': {
 				uint64_t value;
 				if (!str_to_uint64(optarg, &value)) {
-						die("There was an error while reading the number threads."
+						die("There was an error while reading the number threads. "
 								"Please make sure you provide a valid number of threads.");
 				}
 				options.num_threads = (uint64_t) value;
@@ -54,7 +57,7 @@ client_options parse_command_line_arguments(int argc, char *argv[]) {
 			case 's': {
 				uint64_t value;
 				if (!str_to_uint64(optarg, &value)) {
-						die("There was an error while reading the server port number."
+						die("There was an error while reading the server port number. "
 								"Please make sure you provide a valid server port number.");
 				}
 				options.server_port_number = (uint16_t) value;
