@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include "../../common/includes/macros.h"
+
 #include "../includes/io_utils.h"
 
 extern client_options options;

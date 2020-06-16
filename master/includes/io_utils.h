@@ -22,6 +22,8 @@
     uint16_t server_port_number;
     char *server_ip;
     char *input_dir;
+		char **workers_dir_paths;
+    pid_t *workers_pid;
   } master_options;
 
 	/**
