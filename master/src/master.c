@@ -22,7 +22,7 @@
 
 extern master_options options;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   /* Parse command line arguments and update master options */
   parse_command_line_arguments(argc, argv);
 

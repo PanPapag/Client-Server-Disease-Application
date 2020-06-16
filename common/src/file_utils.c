@@ -36,3 +36,14 @@ void get_file_lines(const char *filename, int *num_lines) {
   fscanf(fp, "%d", num_lines);
   pclose(fp);
 }
+
+bool file_exists(const char *restrict path) {
+  struct stat info = {0};
+  return stat(path, &info) == 0;
+}
+
+bool directory_exists(const char *restrict path) {
+  struct stat info = {0};
+  int res = stat(path, &info);
+  return res == 0 && ((info.st_mode & S_IFDIR) != 0);
+}

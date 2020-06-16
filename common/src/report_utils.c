@@ -28,6 +28,6 @@ void report_warning(const char *fmt, ...) {
 void die(const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-  report_error(fmt, args);
+  __report("[ERROR]: ", fmt, args);
   exit(EXIT_FAILURE);
 }

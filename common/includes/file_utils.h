@@ -1,6 +1,8 @@
 #ifndef __COMMON_FILE_UTILS__
   #define __COMMON_FILE_UTILS__
 
+  #include <stdbool.h>
+  
   #include "attributes.h"
 
   typedef struct entire_file {
@@ -13,5 +15,11 @@
 
   __NON_NULL__(1)
   void get_file_lines(const char *filename, int *num_lines);
+
+  __NON_NULL__(1)
+  bool file_exists(const char *restrict path);
+
+  __NON_NULL__(1)
+  bool directory_exists(const char *restrict path);
 
 #endif

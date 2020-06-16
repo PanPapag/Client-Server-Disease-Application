@@ -28,9 +28,8 @@ void __usage(void) {
   exit(EXIT_SUCCESS);
 }
 
-client_options parse_command_line_arguments(int argc, char *argv[]) {
+void parse_command_line_arguments(int argc, char *argv[]) {
 	if (argc < 9) __usage();
-	client_options options = {0};
 	int option;
 	while (true) {
 		int option_index;
@@ -39,17 +38,15 @@ client_options parse_command_line_arguments(int argc, char *argv[]) {
 		switch (option) {
 			case 'q': {
 				options.query_file = strdup(optarg);
-        if(access(options.query_file, F_OK) == -1) {
-          die("There was an error while checking query filename. "
-              "Please make sure you provide a valid query filename.");
+        if (!file_exists(options.query_file)) {
+          die("Query file <%s> does not exists. Exiting...", options.query_file);
         }
 				break;
 			}
 			case 'w': {
 				uint64_t value;
 				if (!str_to_uint64(optarg, &value)) {
-						die("There was an error while reading the number threads. "
-								"Please make sure you provide a valid number of threads.");
+						die("Invalid <Number of Threads> parameter. Exiting...");
 				}
 				options.num_threads = (uint64_t) value;
 				break;
@@ -57,8 +54,7 @@ client_options parse_command_line_arguments(int argc, char *argv[]) {
 			case 's': {
 				uint64_t value;
 				if (!str_to_uint64(optarg, &value)) {
-						die("There was an error while reading the server port number. "
-								"Please make sure you provide a valid server port number.");
+						die("Invalid <Server Port> parameter. Exiting...");
 				}
 				options.server_port_number = (uint16_t) value;
 				break;
@@ -78,7 +74,6 @@ client_options parse_command_line_arguments(int argc, char *argv[]) {
 			}
 		}
 	}
-	return options;
 }
 
 static inline

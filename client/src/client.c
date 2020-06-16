@@ -10,7 +10,7 @@
 extern client_options options;
 
 int main(int argc, char *argv[]) {
-	options = parse_command_line_arguments(argc, argv);
+	parse_command_line_arguments(argc, argv);
 	pthread_t *client_threads = __MALLOC__(options.num_threads, pthread_t);
 	parse_query_file_and_create_threads(client_threads);
 	__FREE__(client_threads);

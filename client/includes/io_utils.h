@@ -23,12 +23,12 @@
 
 	/**
 		\brief Parses the command line arguments of whoClient executable and
-			updates the client_options struct 
+			updates the client_options struct
 		@param argc: Number of the command line arguments
-		@param argv: Array of the command lines arguments 
+		@param argv: Array of the command lines arguments
 	*/
 	__NON_NULL__(2)
-	client_options parse_command_line_arguments(int argc, char *argv[]);
+	void parse_command_line_arguments(int argc, char *argv[]);
 
 	/**
 		\brief Parses the query file line by line. For each line creates a thread

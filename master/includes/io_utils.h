@@ -31,7 +31,7 @@
 		@param argv: Array of the command lines arguments
 	*/
 	__NON_NULL__(2)
-	master_options parse_command_line_arguments(int argc, char *argv[]);
+	void parse_command_line_arguments(int argc, char *argv[]);
 
 
 #endif
