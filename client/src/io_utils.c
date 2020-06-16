@@ -21,10 +21,10 @@ static inline
 void __usage(void) {
   fprintf(stderr,
 					"You must provide the following arguments:\n"
-					"\t-q <query_file>\n"
-					"\t-w <num_threads>\n"
-					"\t-sp <server_port>\n"
-					"\t-sip <server_ip>\n");
+					"\t-q <Query File>\n"
+					"\t-w <Number of Threads>\n"
+					"\t-sp <Server Port>\n"
+					"\t-sip <Server IP>\n");
   exit(EXIT_SUCCESS);
 }
 

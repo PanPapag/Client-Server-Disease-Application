@@ -8,19 +8,24 @@ $(shell mkdir -p $(BDIR))
 
 ALL_SRC := $(shell find . -type f -regex ".*\.c")
 ALL_OBJ := $(patsubst %.c, %.o, $(ALL_SRC))
-CLIENT_OBJ_FILTER := server_utils.o server.o
-OBJ_SERVER := $(filter-out $(SERVER_OBJ_FILTER), $(ALL_OBJ))
-OBJ_CLIENT := $(filter-out $(CLIENT_OBJ_FILTER), $(ALL_OBJ))
 
-all: $(BDIR)/whoClient
+COMMON_OBJ := $(filter ./common/%.o, $(ALL_OBJ))
+CLIENT_OBJ := $(filter ./client/%.o, $(ALL_OBJ))
+MASTER_OBJ := $(filter ./master/%.o, $(ALL_OBJ))
+
+all: $(BDIR)/whoClient $(BDIR)/master
 
 $(BDIR)/whoClient: $(ALL_OBJ)
-	$(CC) $(OBJ_CLIENT) -o $@ $(LFLAGS)
-	rm -rf $(ALL_OBJ)
+	$(CC) $(CLIENT_OBJ) $(COMMON_OBJ) -o $@ $(LFLAGS)
+	rm -rf $(CLIENT_OBJ)
+
+$(BDIR)/master: $(ALL_OBJ)
+	$(CC) $(MASTER_OBJ) $(COMMON_OBJ) -o $@ $(LFLAGS)
+	rm -rf $(MASTER_OBJ) $(COMMON_OBJ)
 
 .PHONY: clean
 
 clean:
-	rm -rf $(BDIR)
+	rm -rf $(BDIR) $(ALL_OBJ)
 
 $(VERBOSE).SILENT:
