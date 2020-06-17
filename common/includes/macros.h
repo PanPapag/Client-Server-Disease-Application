@@ -3,6 +3,8 @@
 
 	#include <stdlib.h>
 
+	#define MAX(x, y) ((x) < (y) ? (y) : (x))
+
 	#define __MALLOC__(size, type) ((type *) malloc((size) * sizeof(type)))
 	#define __CALLOC__(size, type) ((type *) calloc(size, sizeof(type)))
 
@@ -11,5 +13,5 @@
     free(ptr);          \
     ptr = NULL;         \
   } while(0)
-  
+
 #endif

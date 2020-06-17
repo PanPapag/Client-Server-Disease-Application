@@ -15,10 +15,11 @@
 #include "../includes/list.h"
 #include "../includes/macros.h"
 #include "../includes/report_utils.h"
+#include "../includes/types.h"
 #include "../includes/utils.h"
 
 list_ptr get_subdirs(const char *restrict dirname) {
-  list_ptr result = list_create(STRING*, ptr_to_string_compare,
+  list_ptr result = list_create(string*, ptr_to_string_compare,
                                 ptr_to_string_print, ptr_to_string_destroy);
 
   struct stat path_stat;

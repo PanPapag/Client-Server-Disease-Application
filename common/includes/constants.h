@@ -13,8 +13,6 @@
 
   #define FINISHED "FINISHED"
 
-	#define STRING char*
-
 	#define SPACE " "
 
 #endif
