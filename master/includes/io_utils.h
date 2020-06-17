@@ -24,6 +24,7 @@
     char *input_dir;
 		char **workers_dir_paths;
     pid_t *workers_pid;
+		int *workers_fd;
   } master_options;
 
 	/**

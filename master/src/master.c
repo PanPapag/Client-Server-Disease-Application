@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
   options.workers_pid = __MALLOC__(options.num_workers, pid_t);
   spawn_workers();
   get_and_distribute_subdirs();
+  update_workers();
   __FREE__(options.workers_pid);
   __FREE__(options.input_dir);
   __FREE__(options.server_ip);
