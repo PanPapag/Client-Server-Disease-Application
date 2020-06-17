@@ -74,7 +74,6 @@ static void __update_worker(pid_t pid, int pos) {
   if (options.workers_fd[pos] < 0) {
     die("<Master> could not open named pipe: %s", workers_fifo);
   }
-  printf("MASTER: %s\n", options.workers_dir_paths[pos]);
   // Write to the pipe the directories paths
   write_in_chunks(options.workers_fd[pos], options.workers_dir_paths[pos], options.buffer_size);
 }

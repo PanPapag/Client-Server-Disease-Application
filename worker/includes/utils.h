@@ -21,4 +21,10 @@
   */
   void create_global_data_structures(void);
 
+  /**
+    \brief Wrapper function which reads from fifo parse directories and updates
+      global data structures
+  */
+  void parse_dirs_and_update_global_data_structures(void);
+  
 #endif
