@@ -8,6 +8,7 @@
 #include "../../common/includes/list.h"
 #include "../../common/includes/macros.h"
 #include "../../common/includes/report_utils.h"
+#include "../../common/includes/statistics.h"
 #include "../../common/includes/string_utils.h"
 #include "../../common/includes/types.h"
 #include "../../common/includes/utils.h"
@@ -46,8 +47,7 @@ void create_global_data_structures(void) {
 	structures.diseases_names = list_create(string*, ptr_to_string_compare,
                                           ptr_to_string_print, NULL);
 
-  // structures.files_statistics = list_create(statistics_entry_ptr*, NULL,
-  //                                ptr_to_statistics_entry_print,
-  //                                ptr_to_statistics_entry_destroy);
-  printf("COMPLETED\n");
+  structures.files_statistics = list_create(statistics_entry_ptr*, NULL,
+                                            ptr_to_statistics_entry_print,
+                                            ptr_to_statistics_entry_destroy);
 }

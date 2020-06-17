@@ -60,7 +60,7 @@ avl_node_ptr __rotate_ll(avl_node_ptr parent, int parent_factor,
 
 static inline
 avl_node_ptr __rotate_rr(avl_node_ptr parent, int parent_factor,
-                         int* child_factor, int* h_delta) {
+                         int *child_factor, int *h_delta) {
 
   avl_node_ptr child = parent->right_;
   int c_left = (child->left_) ? 1 : 0;
@@ -153,7 +153,7 @@ static avl_node_ptr __fix_balance(avl_node_ptr node, int balance_factor) {
   return node;
 }
 
-void avl_insert(avl_ptr* avl, void* new_data) {
+void avl_insert(avl_ptr *avl, void *new_data) {
   /* Allocate and initialize a new avl node */
   // + data_size means that the size of the variable-length
   // array 'data' of the node will be of size data_size.
@@ -227,7 +227,7 @@ size_t avl_size(avl_ptr avl) {
   return avl->size_;
 }
 
-avl_node_ptr avl_find(avl_ptr avl, void* data) {
+avl_node_ptr avl_find(avl_ptr avl, void *data) {
   avl_node_ptr temp = avl->root_;
   while (temp) {
     int cmp_res = avl->avl_cmp_func_(data, temp->data_);
@@ -243,7 +243,7 @@ avl_node_ptr avl_find(avl_ptr avl, void* data) {
 }
 
 static inline
-void __avl_print_inorder(avl_ptr avl, avl_node_ptr current_root, FILE* out) {
+void __avl_print_inorder(avl_ptr avl, avl_node_ptr current_root, FILE *out) {
   avl_node_ptr temp = current_root;
   if (temp != NULL) {
     __avl_print_inorder(avl, temp->left_, out);
@@ -252,7 +252,7 @@ void __avl_print_inorder(avl_ptr avl, avl_node_ptr current_root, FILE* out) {
   }
 }
 
-void avl_print_inorder(void* v, FILE* out) {
+void avl_print_inorder(void *v, FILE *out) {
   avl_ptr avl = (avl_ptr) v;
   __avl_print_inorder(avl, avl->root_, out);
 }
@@ -268,7 +268,7 @@ void __avl_clear(avl_node_ptr temp) {
   __FREE__(temp);
 }
 
-void avl_clear(void* v) {
+void avl_clear(void *v) {
   avl_ptr avl = (avl_ptr) v;
   if (avl != NULL) {
     __avl_clear(avl->root_);
