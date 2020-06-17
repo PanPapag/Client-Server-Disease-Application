@@ -26,5 +26,5 @@
       global data structures
   */
   void parse_dirs_and_update_global_data_structures(void);
-  
+
 #endif
