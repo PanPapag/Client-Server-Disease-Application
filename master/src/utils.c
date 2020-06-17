@@ -25,6 +25,9 @@ void spawn_workers(void) {
   // Convert command line argument buffer_size to string
   char buffer_size[12];
   sprintf(buffer_size, "%d", options.buffer_size);
+  // Convert server port number to string
+  char server_port_number[12];
+  sprintf(server_port_number, "%d", options.server_port_number);
   // Fifo array of char holds the name of named pipe via master and worker communicates
   char fifo[FIFO_NAME_SIZE];
   // Store in a variable of type pid_t the pid of each worker proccess spawned
@@ -40,13 +43,13 @@ void spawn_workers(void) {
       // Create named pipe in which parent writes and child reads
       sprintf(fifo, "fifo_%d", getpid());
       int ret_val = mkfifo(fifo, 0666);
-      printf("%s\n",fifo);
       if ((ret_val == -1) && (errno != EEXIST)) {
          perror("Creating Fifo Failed");
          exit(1);
       }
       // Start worker executable passing its arguments
-      execl("./whoClient", "whoClient", (char *) NULL);
+      execl("./worker", "worker", "-f", fifo, "-b", buffer_size,
+            "-s", options.server_ip, "-p", server_port_number, (char *) NULL);
       perror("execl() Execution Failed");
       exit(EXIT_FAILURE);
     } else {
