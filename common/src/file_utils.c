@@ -1,3 +1,4 @@
+#include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -11,8 +12,36 @@
 
 #include "../includes/constants.h"
 #include "../includes/file_utils.h"
+#include "../includes/list.h"
 #include "../includes/macros.h"
 #include "../includes/report_utils.h"
+#include "../includes/utils.h"
+
+list_ptr get_subdirs(const char *restrict dirname) {
+  list_ptr result = list_create(STRING*, ptr_to_string_compare,
+                                ptr_to_string_print, ptr_to_string_destroy);
+
+  struct stat path_stat;
+  struct dirent *direntp;
+  DIR *dir_ptr = opendir(dirname);
+  if (dir_ptr == NULL) {
+    report_error("Cannot open %s", dirname);
+  }
+  else {
+    while ((direntp = readdir(dir_ptr)) != NULL) {
+      // Skip previous and current folder
+      if (strcmp(direntp->d_name, ".") && strcmp(direntp->d_name, "..")) {
+        char *full_path = concat(2, dirname, direntp->d_name);
+        stat(full_path, &path_stat);
+        if (S_ISDIR(path_stat.st_mode)){
+          list_push_back(&result, &full_path);
+        }
+      }
+    }
+    closedir(dir_ptr);
+  }
+  return result;
+}
 
 entire_file read_entire_file_into_memory(const char *filename) {
   entire_file file = {0};
