@@ -13,7 +13,7 @@
 message create_query_message(const char *restrict query) {
   message_header header = {
     .bytes = __MESSAGE_BYTES(query),
-    .id = 'C'
+    .id = QUERY
   };
 
   uint8_t *data = __MALLOC__(header.bytes, uint8_t);
@@ -26,10 +26,26 @@ message create_query_message(const char *restrict query) {
   };
 }
 
+message create_num_statistics_message(const char *restrict num_statistics) {
+  message_header header = {
+    .bytes = __MESSAGE_BYTES(num_statistics),
+    .id = NUM_STATISTICS
+  };
+
+  uint8_t *data = __MALLOC__(header.bytes, uint8_t);
+
+  memcpy(data, num_statistics, header.bytes);
+
+  return (message) {
+    .header = header,
+    .data = data
+  };
+}
+
 message create_statistics_message(const char *restrict statistics) {
   message_header header = {
     .bytes = __MESSAGE_BYTES(statistics),
-    .id = 'W'
+    .id = STATISTICS
   };
 
   uint8_t *data = __MALLOC__(header.bytes, uint8_t);

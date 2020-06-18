@@ -9,6 +9,11 @@
   #include "macros.h"
   #include "types.h"
 
+  #define QUERY 'Q'
+  #define NUM_STATISTICS 'N'
+  #define STATISTICS 'S'
+  #define RESPONSE 'R'
+
   #define __MESSAGE_BYTES(message) (strlen(message) + 1 ) * sizeof(char)
 
   typedef struct message_header {
@@ -45,6 +50,8 @@
   }
 
   message create_query_message(const char *restrict query);
+
+  message create_num_statistics_message(const char *restrict num_statistics);
 
   message create_statistics_message(const char *restrict statistics);
 

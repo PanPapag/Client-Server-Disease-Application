@@ -207,13 +207,22 @@ void parse_dirs_and_update_global_data_structures(void) {
 
 void send_statistics(void) {
   ipv4_socket statistics_socket;
+  message message;
 	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &statistics_socket)) {
+    // Send how many file statistics have to be sent
+    char num_statistics[12];
+    sprintf(num_statistics, "%ld", list_size(structures.files_statistics));
+    message = create_num_statistics_message(num_statistics);
+    if (!ipv4_socket_send_message(&statistics_socket, message)) {
+      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    }
+    // Send actual statistics
     for (size_t i = 1U; i <= list_size(structures.files_statistics); ++i) {
       list_node_ptr list_node = list_get(structures.files_statistics, i);
       char *serialized_statistics_entry = ptr_to_statistics_entry_serialize(
                                             list_node->data_,
                                             structures.diseases_names);
-      message message = create_statistics_message(serialized_statistics_entry);
+      message = create_statistics_message(serialized_statistics_entry);
   		if (!ipv4_socket_send_message(&statistics_socket, message)) {
   			report_warning("Message <%s> could not be sent to server!", (char*) message.data);
   		}
