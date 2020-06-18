@@ -5,6 +5,7 @@
 	#include <getopt.h>
 
 	#include "../../common/includes/attributes.h"
+	#include "../../common/includes/ipv4_socket.h"
 
   static struct option options_spec[] = {
     {"q",    required_argument, NULL, 'q'},
@@ -21,6 +22,9 @@
     uint16_t query_port_number;
     uint16_t statistics_port_number;
   } server_options;
+
+	extern ipv4_socket server_statistics_socket;
+	extern ipv4_socket server_query_socket;
 
 	/**
 		\brief Parses the command line arguments of server executable and

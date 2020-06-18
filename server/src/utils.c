@@ -3,9 +3,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "../../common/includes/ipv4_socket.h"
+#include "../../common/includes/report_utils.h"
+
 #include "../includes/io_utils.h"
 #include "../includes/pool.h"
 #include "../includes/utils.h"
+
+ipv4_socket server_statistics_socket;
+ipv4_socket server_query_socket;
 
 server_options options;
 
@@ -15,10 +21,42 @@ pthread_cond_t cond_nonempty;
 pthread_cond_t cond_nonfull;
 pthread_mutex_t mtx;
 
+static void __setup_statistics_socket(void) {
+  if (ipv4_socket_create(options.statistics_port_number, IPV4_ANY_ADDRESS,
+                         &server_statistics_socket) < 0) {
+    die("Could not create address for server to statistics socket!");
+  }
+  if (ipv4_socket_bind(&server_statistics_socket) < 0) {
+    die("Could not bind server address to statistics socket!");
+  }
+  if (ipv4_socket_listen(&server_statistics_socket) < 0) {
+    die("Could not register server address for listening to statistics socket!");
+  }
+}
+
+static void __setup_query_socket(void) {
+  if (ipv4_socket_create(options.query_port_number, IPV4_ANY_ADDRESS,
+                         &server_query_socket) < 0) {
+    die("Could not create address for server to query socket!");
+  }
+  if (ipv4_socket_bind(&server_query_socket) < 0) {
+    die("Could not bind server address to query socket!");
+  }
+  if (ipv4_socket_listen(&server_query_socket) < 0) {
+    die("Could not register server address for listening to query socket!");
+  }
+}
+
+void setup_server_connections(void) {
+  __setup_statistics_socket();
+  __setup_query_socket();
+}
+
 static void* __accept_connections(void *args) {
   while (1) {
-    place_in_pool(&pool, rand_num);
-    printf("producer: %d\n", rand_num);
+    int socket_fd = 1;
+    place_in_pool(&pool, socket_fd);
+    printf("producer: %d\n", socket_fd);
     pthread_cond_signal(&cond_nonempty);
     usleep(0);
   }
