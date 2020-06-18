@@ -141,7 +141,6 @@ void __parse_directory_and_update_global_structures(const char *dir_path) {
         // fifo to the disease aggregator
         statistics_entry = statistics_entry_create(direntp->d_name, dir_name, age_groups_ht);
         list_push_back(&structures.files_statistics, &statistics_entry);
-
       }
     }
     closedir(dir_ptr);
@@ -207,14 +206,13 @@ void parse_dirs_and_update_global_data_structures(void) {
 }
 
 void send_statistics(void) {
-  printf("HEEERE %s %d\n", options.server_ip, options.server_port_number);
   ipv4_socket statistics_socket;
 	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &statistics_socket)) {
     for (size_t i = 1U; i <= list_size(structures.files_statistics); ++i) {
       list_node_ptr list_node = list_get(structures.files_statistics, i);
       char *serialized_statistics_entry = ptr_to_statistics_entry_serialize(
                                             list_node->data_,
-                                            structures.files_statistics);
+                                            structures.diseases_names);
       message message = create_statistics_message(serialized_statistics_entry);
   		if (!ipv4_socket_send_message(&statistics_socket, message)) {
   			report_warning("Message <%s> could not be sent to server!", (char*) message.data);
