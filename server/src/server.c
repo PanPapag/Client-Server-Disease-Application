@@ -4,6 +4,7 @@
 #include "../../common/includes/ipv4_socket.h"
 
 #include "../includes/io_utils.h"
+#include "../includes/pool.h"
 
 server_options options;
 

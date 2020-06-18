@@ -1,4 +1,4 @@
-#ifndef _SERVER_IO_UTILS__
+#ifndef __SERVER_IO_UTILS__
 	#define __SERVER_IO_UTILS__
 
 	#include <stdint.h>
@@ -30,6 +30,5 @@
 	*/
 	__NON_NULL__(2)
 	void parse_command_line_arguments(int argc, char *argv[]);
-
 
 #endif
