@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#include "../../common/includes/ipv4_socket.h"
 #include "../../common/includes/macros.h"
 #include "../../common/includes/report_utils.h"
 
@@ -12,7 +13,7 @@ pthread_cond_t cond_nonfull;
 pthread_mutex_t mtx;
 
 void initialize_pool(pool_ptr pool, int pool_size) {
-  pool->data = __MALLOC__(pool_size, int);
+  pool->data = __MALLOC__(pool_size, ipv4_socket);
   if (pool->data == NULL) {
     die("Could not allocate memory for pool.");
   }
@@ -26,7 +27,7 @@ void destroy_pool(pool_ptr pool) {
   __FREE__(pool->data);
 }
 
-void place_in_pool(pool_ptr pool, int data) {
+void place_in_pool(pool_ptr pool, ipv4_socket data) {
   pthread_mutex_lock(&mtx);
   while (pool->count >= pool->size) {
     pthread_cond_wait(&cond_nonfull, &mtx);
@@ -37,8 +38,8 @@ void place_in_pool(pool_ptr pool, int data) {
   pthread_mutex_unlock(&mtx);
 }
 
-int obtain_from_pool(pool_ptr pool) {
-  int data = 0;
+ipv4_socket obtain_from_pool(pool_ptr pool) {
+  ipv4_socket data = {0};
   pthread_mutex_lock(&mtx);
   while (pool->count <= 0) {
     pthread_cond_wait(&cond_nonempty, &mtx);

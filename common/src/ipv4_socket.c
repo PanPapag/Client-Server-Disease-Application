@@ -85,12 +85,12 @@ ssize_t ipv4_socket_send_message(ipv4_socket_ptr receiver, message message) {
   uint32_t bytes = message.header.bytes;
   message.header = header_hton(message.header);
   if (write(receiver->socket_fd, &message.header, sizeof(message_header)) < 0) {
-    return -1;
+    return 0;
   }
   if (write(receiver->socket_fd, message.data, bytes) < 0) {
-    return -1;
+    return 0;
   }
-  return 0;
+  return 1;
 }
 
 message ipv4_socket_get_message(ipv4_socket_ptr sender) {

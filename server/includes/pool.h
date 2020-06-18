@@ -3,8 +3,10 @@
 
   #include <pthread.h>
 
+	#include "../../common/includes/ipv4_socket.h"
+
   typedef struct pool {
-    int *data;
+    ipv4_socket *data;
     int size;
     int start;
     int end;
@@ -22,7 +24,7 @@
   void initialize_pool(pool_ptr pool, int pool_size);
   void destroy_pool(pool_ptr pool);
 
-  void place_in_pool(pool_ptr pool, int data);
-  int obtain_from_pool(pool_ptr pool);
+  void place_in_pool(pool_ptr pool, ipv4_socket data);
+  ipv4_socket obtain_from_pool(pool_ptr pool);
 
 #endif

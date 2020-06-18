@@ -27,9 +27,10 @@ void* __client_threads_function(void *fl) {
 	// Establish connection with server
 	ipv4_socket client_socket;
 	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &client_socket)) {
-		printf("Established! - %s\n", query);
 		message message = create_query_message(query);
-		printf("%c ----- %s\n", message.header.id,  (char*) message.data);
+		if (!ipv4_socket_send_message(&client_socket, message)) {
+			report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+		}
 	}
 }
 

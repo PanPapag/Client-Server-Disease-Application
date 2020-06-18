@@ -56,7 +56,7 @@ static void* __accept_connections(void *args) {
   ipv4_socket connected_socket;
   while (1) {
     ipv4_socket_accept(&server_query_socket, &connected_socket);
-    place_in_pool(&pool, connected_socket.socket_fd);
+    place_in_pool(&pool, connected_socket);
     printf("producer: %d\n", connected_socket.socket_fd);
     pthread_cond_signal(&cond_nonempty);
   }
@@ -64,8 +64,12 @@ static void* __accept_connections(void *args) {
 }
 
 static void* __get_connections(void *args) {
+  ipv4_socket connected_socket;
+  message message;
   while (1) {
-    printf("consumer: %d\n", obtain_from_pool(&pool));
+    connected_socket = obtain_from_pool(&pool);
+    message = ipv4_socket_get_message(&connected_socket);
+    printf("consumer: %c - %s\n", message.header.id, (char*) message.data);
     pthread_cond_signal(&cond_nonfull);
   }
   pthread_exit(0);
