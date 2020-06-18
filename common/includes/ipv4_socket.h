@@ -9,11 +9,11 @@
 
   #include "attributes.h"
   #include "types.h"
-  #include "request.h"
+  #include "message.h"
 
   #define IPV4_SOCKET_BACKLOG_SIZE 5
   #define IPV4_ANY_ADDRESS (struct in_addr) {htonl(INADDR_ANY)}
-  #define IPV4_ADDRESS_SIZE (sizeof(u32) + sizeof(u16))
+  #define IPV4_ADDRESS_SIZE (sizeof(uint32_t) + sizeof(uint16_t))
   #define IPV4_BYTES 4
   #define MIN_IVP4_LENGTH 7
   #define MAX_IPV4_LENGTH 15
@@ -46,9 +46,9 @@
   bool ipv4_socket_create_and_connect(string ip_address, uint16_t port_number, ipv4_socket_ptr socket_out);
 
   __NON_NULL__(1)
-  ssize_t ipv4_socket_send_request(ipv4_socket_ptr receiver, request request);
+  ssize_t ipv4_socket_send_message(ipv4_socket_ptr receiver, message message);
 
   __NON_NULL__(1)
-  request ipv4_socket_get_request(ipv4_socket_ptr sender);
+  message ipv4_socket_get_message(ipv4_socket_ptr sender);
 
 #endif

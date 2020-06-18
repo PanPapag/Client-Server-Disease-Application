@@ -14,7 +14,7 @@
 #include "../includes/ipv4_socket.h"
 #include "../includes/macros.h"
 #include "../includes/report_utils.h"
-#include "../includes/request.h"
+#include "../includes/message.h"
 #include "../includes/types.h"
 
 int ipv4_socket_create(uint16_t port_number, struct in_addr in_address, ipv4_socket_ptr out_socket) {
@@ -81,36 +81,36 @@ bool ipv4_socket_create_and_connect(string ip_address, uint16_t port_number, ipv
   return true;
 }
 
-ssize_t ipv4_socket_send_request(ipv4_socket_ptr receiver, request request) {
-  uint32_t bytes = request.header.bytes;
-  request.header = header_hton(request.header);
-  if (write(receiver->socket_fd, &request.header, sizeof(request_header)) < 0) {
-      return -1;
+ssize_t ipv4_socket_send_message(ipv4_socket_ptr receiver, message message) {
+  uint32_t bytes = message.header.bytes;
+  message.header = header_hton(message.header);
+  if (write(receiver->socket_fd, &message.header, sizeof(message_header)) < 0) {
+    return -1;
   }
-  if (write(receiver->socket_fd, request.data, bytes) < 0) {
-      return -1;
+  if (write(receiver->socket_fd, message.data, bytes) < 0) {
+    return -1;
   }
   return 0;
 }
 
-request ipv4_socket_get_request(ipv4_socket_ptr sender) {
-  request_header header = {0};
+message ipv4_socket_get_message(ipv4_socket_ptr sender) {
+  message_header header = {0};
   int res;
-  if ((res = read(sender->socket_fd, &header, sizeof(request_header))) <= 0) {
-    report_warning("Read returned %d in get_request while getting the header", res);
-    return (request) {0};
+  if ((res = read(sender->socket_fd, &header, sizeof(message_header))) <= 0) {
+    report_warning("Read returned %d in get_message while getting the header", res);
+    return (message) {0};
   }
   header = header_ntoh(header);
 
   int8_t *data = __MALLOC__(header.bytes, byte);
 
   if ((res = read(sender->socket_fd, data, header.bytes)) <= 0) {
-    report_warning("Read returned %d in get_request while getting the data", res);
+    report_warning("Read returned %d in get_message while getting the data", res);
     __FREE__(data);
-    return (request) {0};
+    return (message) {0};
   }
 
-  request result = {
+  message result = {
           .data = data,
           .header = header
   };

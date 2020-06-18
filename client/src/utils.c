@@ -7,6 +7,7 @@
 #include "../../common/includes/constants.h"
 #include "../../common/includes/file_utils.h"
 #include "../../common/includes/ipv4_socket.h"
+#include "../../common/includes/message.h"
 #include "../../common/includes/report_utils.h"
 #include "../../common/includes/request.h"
 #include "../../common/includes/string_utils.h"
@@ -27,6 +28,8 @@ void* __client_threads_function(void *fl) {
 	ipv4_socket client_socket;
 	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &client_socket)) {
 		printf("Established! - %s\n", query);
+		message message = create_query_message(query);
+		printf("%c ----- %s\n", message.header.id,  (char*) message.data);
 	}
 }
 
