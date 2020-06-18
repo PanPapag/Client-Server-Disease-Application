@@ -11,7 +11,7 @@ pthread_cond_t cond_nonempty;
 pthread_cond_t cond_nonfull;
 pthread_mutex_t mtx;
 
-void initialize(pool_ptr pool, int pool_size) {
+void initialize_pool(pool_ptr pool, int pool_size) {
   pool->data = __MALLOC__(pool_size, int);
   if (pool->data == NULL) {
     die("Could not allocate memory for pool.");
@@ -22,11 +22,11 @@ void initialize(pool_ptr pool, int pool_size) {
   pool->count = 0;
 }
 
-void destroy(pool_ptr pool) {
+void destroy_pool(pool_ptr pool) {
   __FREE__(pool->data);
 }
 
-void place(pool_ptr pool, int data) {
+void place_in_pool(pool_ptr pool, int data) {
   pthread_mutex_lock(&mtx);
   while (pool->count >= pool->size) {
     pthread_cond_wait(&cond_nonfull, &mtx);
@@ -37,7 +37,7 @@ void place(pool_ptr pool, int data) {
   pthread_mutex_unlock(&mtx);
 }
 
-int obtain(pool_ptr pool) {
+int obtain_from_pool(pool_ptr pool) {
   int data = 0;
   pthread_mutex_lock(&mtx);
   while (pool->count <= 0) {

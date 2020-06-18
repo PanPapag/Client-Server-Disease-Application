@@ -16,7 +16,7 @@
   };
 
   typedef struct server_options {
-    uint16_t num_workers;
+    uint16_t num_threads;
     uint16_t buffer_size;
     uint16_t query_port_number;
     uint16_t statistics_port_number;

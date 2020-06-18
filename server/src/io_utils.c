@@ -20,7 +20,7 @@ void __usage() {
             "You must provide the following arguments:\n"
             "\t-q <Query Port>\n"
             "\t-s <Statistics Port>\n"
-            "\t-w <Number of Workers>\n"
+            "\t-w <Number of Threads>\n"
             "\t-b <Buffer Size>\n");
     exit(EXIT_FAILURE);
 }
@@ -52,9 +52,9 @@ void parse_command_line_arguments(int argc, char *argv[]) {
       case 'w': {
         uint64_t value;
         if (!str_to_uint64(optarg, &value)) {
-          die("Invalid <Number of Workers> parameter. Exiting...");
+          die("Invalid <Number of Threads> parameter. Exiting...");
         }
-        options.num_workers = (uint16_t) value;
+        options.num_threads = (uint16_t) value;
         break;
       }
       case 'b': {
