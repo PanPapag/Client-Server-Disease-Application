@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+#include "../includes/constants.h"
 #include "../includes/ipv4_socket.h"
 #include "../includes/macros.h"
 #include "../includes/report_utils.h"
@@ -58,15 +59,22 @@ int ipv4_socket_connect(ipv4_socket_ptr socket) {
 }
 
 bool ipv4_socket_create_and_connect(string ip_address, uint16_t port_number, ipv4_socket_ptr socket_out) {
-  uint32_t binary_ip = inet_addr(ip_address);
+  struct hostent *machine = gethostbyname(ip_address);
+  struct in_addr **addr_list = (struct in_addr **) machine->h_addr_list;
+  char symbolicip[MAX_BUFFER_SIZE];
+  for (size_t i = 0U; addr_list[i] != NULL; ++i) {
+    strcpy(symbolicip, inet_ntoa(*addr_list[i]));
+    break;
+  }
+  uint32_t binary_ip = inet_addr(symbolicip);
   if (ipv4_socket_create(port_number, (struct in_addr) {binary_ip}, socket_out) < 0) {
-      report_error("Couldn't create new socket to connect to client with"
-                   "I.P: %s and Port: %" PRIu16,
+      report_error("Could not create new socket to connect to client with"
+                   "IP: %s and Port: %" PRIu16,
                    ip_address, port_number);
       return false;
   }
   if (ipv4_socket_connect(socket_out) < 0) {
-      report_error("Couldn't connect to client with I.P: %s and Port: %" PRIu16,
+      report_error("Could not connect to client with IP: %s and Port: %" PRIu16,
                    ip_address, port_number);
       return false;
   }

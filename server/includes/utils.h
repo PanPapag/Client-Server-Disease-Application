@@ -8,4 +8,9 @@
   */
   void create_threads_and_start_server(void);
 
+	/**
+		\brief For every socket needed - Creates, binds and listens
+	*/
+	void setup_server_connections(void);
+
 #endif

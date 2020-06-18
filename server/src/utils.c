@@ -53,21 +53,20 @@ void setup_server_connections(void) {
 }
 
 static void* __accept_connections(void *args) {
+  ipv4_socket connected_socket;
   while (1) {
-    int socket_fd = 1;
-    place_in_pool(&pool, socket_fd);
-    printf("producer: %d\n", socket_fd);
+    ipv4_socket_accept(&server_query_socket, &connected_socket);
+    place_in_pool(&pool, connected_socket.socket_fd);
+    printf("producer: %d\n", connected_socket.socket_fd);
     pthread_cond_signal(&cond_nonempty);
-    usleep(0);
   }
   pthread_exit(0);
 }
 
 static void* __get_connections(void *args) {
   while (1) {
-    printf("consumer %d: %d\n", pthread_self(), obtain_from_pool(&pool));
+    printf("consumer: %d\n", obtain_from_pool(&pool));
     pthread_cond_signal(&cond_nonfull);
-    usleep(500000);
   }
   pthread_exit(0);
 }
