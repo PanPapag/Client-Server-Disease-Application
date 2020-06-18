@@ -4,7 +4,9 @@
 #include <unistd.h>
 
 #include "../../common/includes/ipv4_socket.h"
+#include "../../common/includes/message.h"
 #include "../../common/includes/report_utils.h"
+#include "../../common/includes/statistics.h"
 
 #include "../includes/io_utils.h"
 #include "../includes/pool.h"
@@ -52,12 +54,34 @@ void setup_server_connections(void) {
   __setup_query_socket();
 }
 
+static void __handle_message(message message, ipv4_socket connected_socket) {
+  switch (message.header.id) {
+    case QUERY: {
+      printf("consumer - query: %s\n",(char*) message.data);
+      break;
+    }
+    case NUM_STATISTICS: {
+      int num_statistics = atoi((char*) message.data);
+      for (size_t i = 0U; i < num_statistics; ++i) {
+        message = ipv4_socket_get_message(&connected_socket);
+        if (message.header.id != STATISTICS) {
+          report_warning("Unknown format instead of statistics has been read!");
+        }
+        serialized_statistics_entry_print((char*) message.data);
+      }
+      break;
+    }
+    default:
+      abort();
+  }
+}
+
 static void* __accept_connections(void *args) {
   ipv4_socket connected_socket;
   while (1) {
     ipv4_socket_accept(&server_statistics_socket, &connected_socket);
     place_in_pool(&pool, connected_socket);
-    printf("producer: %d\n", connected_socket.socket_fd);
+    // printf("producer: %d\n", connected_socket.socket_fd);
     pthread_cond_signal(&cond_nonempty);
   }
   pthread_exit(0);
@@ -69,7 +93,7 @@ static void* __get_connections(void *args) {
   while (1) {
     connected_socket = obtain_from_pool(&pool);
     message = ipv4_socket_get_message(&connected_socket);
-    printf("consumer: %c - %s\n", message.header.id, (char*) message.data);
+    __handle_message(message, connected_socket);
     pthread_cond_signal(&cond_nonfull);
   }
   pthread_exit(0);
