@@ -27,4 +27,10 @@
   */
   void parse_dirs_and_update_global_data_structures(void);
 
+  /**
+    \brief Creates and connects via statistics socket to the server to send
+      all file statistics
+  */
+  void send_statistics(void);
+
 #endif

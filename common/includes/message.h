@@ -46,4 +46,6 @@
 
   message create_query_message(const char *restrict query);
 
+  message create_statistics_message(const char *restrict statistics);
+
 #endif

@@ -55,7 +55,7 @@ void setup_server_connections(void) {
 static void* __accept_connections(void *args) {
   ipv4_socket connected_socket;
   while (1) {
-    ipv4_socket_accept(&server_query_socket, &connected_socket);
+    ipv4_socket_accept(&server_statistics_socket, &connected_socket);
     place_in_pool(&pool, connected_socket);
     printf("producer: %d\n", connected_socket.socket_fd);
     pthread_cond_signal(&cond_nonempty);

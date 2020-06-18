@@ -14,8 +14,10 @@
 #include "../../common/includes/file_utils.h"
 #include "../../common/includes/hash_table.h"
 #include "../../common/includes/io_utils.h"
+#include "../../common/includes/ipv4_socket.h"
 #include "../../common/includes/list.h"
 #include "../../common/includes/macros.h"
+#include "../../common/includes/message.h"
 #include "../../common/includes/report_utils.h"
 #include "../../common/includes/statistics.h"
 #include "../../common/includes/string_utils.h"
@@ -201,5 +203,23 @@ void parse_dirs_and_update_global_data_structures(void) {
 	while (dir_path != NULL) {
     __parse_directory_and_update_global_structures(dir_path);
 		dir_path = strtok(NULL, SPACE);
+	}
+}
+
+void send_statistics(void) {
+  printf("HEEERE %s %d\n", options.server_ip, options.server_port_number);
+  ipv4_socket statistics_socket;
+	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &statistics_socket)) {
+    for (size_t i = 1U; i <= list_size(structures.files_statistics); ++i) {
+      list_node_ptr list_node = list_get(structures.files_statistics, i);
+      char *serialized_statistics_entry = ptr_to_statistics_entry_serialize(
+                                            list_node->data_,
+                                            structures.files_statistics);
+      message message = create_statistics_message(serialized_statistics_entry);
+  		if (!ipv4_socket_send_message(&statistics_socket, message)) {
+  			report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+  		}
+      __FREE__(serialized_statistics_entry);
+    }
 	}
 }

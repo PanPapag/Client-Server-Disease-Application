@@ -25,3 +25,19 @@ message create_query_message(const char *restrict query) {
     .data = data
   };
 }
+
+message create_statistics_message(const char *restrict statistics) {
+  message_header header = {
+    .bytes = __MESSAGE_BYTES(statistics),
+    .id = 'W'
+  };
+
+  uint8_t *data = __MALLOC__(header.bytes, uint8_t);
+
+  memcpy(data, statistics, header.bytes);
+
+  return (message) {
+    .header = header,
+    .data = data
+  };
+}

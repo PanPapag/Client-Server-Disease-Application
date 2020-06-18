@@ -51,15 +51,15 @@ void parse_command_line_arguments(int argc, char *argv[]) {
         break;
       }
       case 's': {
+        options.server_ip = strdup(optarg);
+        break;
+      }
+      case 'p': {
         uint64_t value;
         if (!str_to_uint64(optarg, &value)) {
             die("Invalid <Server Port> parameter. Exiting...");
         }
         options.server_port_number = (uint16_t) value;
-        break;
-      }
-      case 'p': {
-        options.server_ip = strdup(optarg);
         break;
       }
       case 'i': {
