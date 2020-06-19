@@ -45,7 +45,7 @@
   }
 
   static __INLINE__
-  void free_message(message_ptr message) {
+  void destroy_message(message_ptr message) {
     __FREE__(message->data);
   }
 

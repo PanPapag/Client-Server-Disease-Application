@@ -20,8 +20,7 @@ client_options options;
 
 static pthread_barrier_t barrier;
 
-static inline
-void* __client_threads_function(void *fl) {
+static void* __client_threads_function(void *fl) {
 	char *query = (char*) fl;
   pthread_barrier_wait(&barrier);
 	// Establish connection with server
@@ -31,7 +30,9 @@ void* __client_threads_function(void *fl) {
 		if (!ipv4_socket_send_message(&client_socket, message)) {
 			report_warning("Message <%s> could not be sent to server!", (char*) message.data);
 		}
+		destroy_message(&message);
 	}
+	pthread_exit(0);
 }
 
 void parse_query_file_and_create_threads(pthread_t *client_threads) {

@@ -54,6 +54,16 @@ void setup_server_connections(void) {
   __setup_query_socket();
 }
 
+static void __serve_num_statistics(int num_statistics, ipv4_socket connected_socket) {
+  for (size_t i = 0U; i < num_statistics; ++i) {
+    message message = ipv4_socket_get_message(&connected_socket);
+    if (message.header.id != STATISTICS) {
+      report_warning("Unknown format instead of statistics has been read!");
+    }
+    serialized_statistics_entry_print((char*) message.data);
+  }
+}
+
 static void __handle_message(message message, ipv4_socket connected_socket) {
   switch (message.header.id) {
     case QUERY: {
@@ -61,14 +71,7 @@ static void __handle_message(message message, ipv4_socket connected_socket) {
       break;
     }
     case NUM_STATISTICS: {
-      int num_statistics = atoi((char*) message.data);
-      for (size_t i = 0U; i < num_statistics; ++i) {
-        message = ipv4_socket_get_message(&connected_socket);
-        if (message.header.id != STATISTICS) {
-          report_warning("Unknown format instead of statistics has been read!");
-        }
-        serialized_statistics_entry_print((char*) message.data);
-      }
+      __serve_num_statistics(atoi((char*) message.data), connected_socket);
       break;
     }
     default:
@@ -79,7 +82,7 @@ static void __handle_message(message message, ipv4_socket connected_socket) {
 static void* __accept_connections(void *args) {
   ipv4_socket connected_socket;
   while (1) {
-    ipv4_socket_accept(&server_statistics_socket, &connected_socket);
+    ipv4_socket_accept(&server_query_socket, &connected_socket);
     place_in_pool(&pool, connected_socket);
     // printf("producer: %d\n", connected_socket.socket_fd);
     pthread_cond_signal(&cond_nonempty);
