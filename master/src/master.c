@@ -24,8 +24,6 @@ int main(int argc, char *argv[]) {
   spawn_workers();
   get_and_distribute_subdirs();
   update_workers();
-  __FREE__(options.workers_pid);
-  __FREE__(options.input_dir);
-  __FREE__(options.server_ip);
+  clear_memory();
   return EXIT_SUCCESS;
 }

@@ -21,9 +21,14 @@
   void spawn_workers(void);
 
   /*
-    Given a worker's pid returns the position of fds in the program_parameters
-    workers_fd_1 and workers_fd_2 arrays
+    \brief Given a worker's pid returns the position of fds in the
+      program_parameters workers_fd array
   */
   int get_worker_fd_pos(pid_t pid);
 
+  /**
+    \brief Clears all the memory allocated by maste
+  */
+  void clear_memory(void);
+  
 #endif

@@ -5,8 +5,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "../../common/includes/constants.h"
 #include "../../common/includes/file_utils.h"
@@ -83,6 +84,8 @@ void update_workers(void) {
   for (size_t i = 0U; i < options.num_workers; ++i) {
     __update_worker(options.workers_pid[i], i);
   }
+  // Wait all child proccesses to terminate
+  // while (wait(NULL) > 0);
 }
 
 static
@@ -144,4 +147,15 @@ int get_worker_fd_pos(pid_t pid) {
     if (options.workers_pid[i] == pid) return i;
   }
   return -1;
+}
+
+void clear_memory(void) {
+  __FREE__(options.workers_pid);
+  __FREE__(options.input_dir);
+  __FREE__(options.server_ip);
+  __FREE__(options.workers_fd);
+  for (size_t i = 0U; i < options.num_workers; ++i) {
+    __FREE__(options.workers_dir_paths[i]);
+  }
+  __FREE__(options.workers_dir_paths);
 }
