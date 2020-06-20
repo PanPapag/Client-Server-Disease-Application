@@ -10,5 +10,6 @@ int main(int argc, char *argv[]) {
   create_global_data_structures();
   parse_dirs_and_update_global_data_structures();
   send_statistics();
+
   return EXIT_SUCCESS;
 }

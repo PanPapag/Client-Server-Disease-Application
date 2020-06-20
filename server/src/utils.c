@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <sys/select.h>
+
 #include "../../common/includes/ipv4_socket.h"
 #include "../../common/includes/message.h"
 #include "../../common/includes/report_utils.h"
@@ -11,6 +13,8 @@
 #include "../includes/io_utils.h"
 #include "../includes/pool.h"
 #include "../includes/utils.h"
+
+fd_set server_sockets_set;
 
 ipv4_socket server_statistics_socket;
 ipv4_socket server_query_socket;
@@ -79,13 +83,33 @@ static void __handle_message(message message, ipv4_socket connected_socket) {
   }
 }
 
+static void __reset_server_sockets_set(void) {
+  FD_ZERO(&server_sockets_set);
+  FD_SET(server_statistics_socket.socket_fd, &server_sockets_set);
+  FD_SET(server_query_socket.socket_fd, &server_sockets_set);
+}
+
+static void __get_selected_socket(ipv4_socket_ptr selected_socket) {
+   if (FD_ISSET(server_statistics_socket.socket_fd, &server_sockets_set)) {
+     *selected_socket = server_statistics_socket;
+   } else if (FD_ISSET(server_query_socket.socket_fd, &server_sockets_set)) {
+     *selected_socket = server_query_socket;
+   }
+}
+
 static void* __accept_connections(void *args) {
+  ipv4_socket selected_socket;
   ipv4_socket connected_socket;
   while (1) {
-    ipv4_socket_accept(&server_statistics_socket, &connected_socket);
-    place_in_pool(&pool, connected_socket);
-    // printf("producer: %d\n", connected_socket.socket_fd);
-    pthread_cond_signal(&cond_nonempty);
+    __reset_server_sockets_set();
+    int retval = select(FD_SETSIZE, &server_sockets_set, NULL, NULL, NULL);
+    if (retval) {
+      __get_selected_socket(&selected_socket);
+      ipv4_socket_accept(&selected_socket, &connected_socket);
+      place_in_pool(&pool, connected_socket);
+      // printf("producer: %d\n", connected_socket.socket_fd);
+      pthread_cond_signal(&cond_nonempty);
+    }
   }
   pthread_exit(0);
 }
