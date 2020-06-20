@@ -22,19 +22,18 @@ fd_set server_sockets_set;
 ipv4_socket server_statistics_socket;
 ipv4_socket server_query_socket;
 
-list_ptr workers_port_number;
-
 server_options options;
 
-pool_t pool;
+server_structures structures;
 
 pthread_cond_t cond_nonempty;
 pthread_cond_t cond_nonfull;
+pthread_mutex_t output_mtx;
 pthread_mutex_t mtx;
 
 void create_global_data_structures(void) {
-  initialize_pool(&pool, options.buffer_size);
-  workers_port_number = list_create(int*, int_compare, int_print, int_destroy);
+  initialize_pool(&structures.pool, options.buffer_size);
+  structures.workers_port_number = list_create(int*, int_compare, int_print, int_destroy);
 }
 
 static void __setup_statistics_socket(void) {
@@ -69,6 +68,7 @@ void setup_server_connections(void) {
 }
 
 static void __serve_num_statistics(int num_statistics, ipv4_socket connected_socket) {
+  pthread_mutex_init(&output_mtx, 0);
   for (size_t i = 0U; i < num_statistics; ++i) {
     message message = ipv4_socket_get_message(&connected_socket);
     if (message.header.id != STATISTICS) {
@@ -76,6 +76,7 @@ static void __serve_num_statistics(int num_statistics, ipv4_socket connected_soc
     }
     serialized_statistics_entry_print((char*) message.data);
   }
+  pthread_mutex_init(&output_mtx, 0);
 }
 
 static void __serve_hostname_and_port(char *hostname_and_port) {
@@ -86,7 +87,7 @@ static void __serve_hostname_and_port(char *hostname_and_port) {
   // get the second token (aka port number)
   port_number = int_create(atoi(strtok(NULL, SPACE)));
   // Save worker's port number to list
-  list_push_back(&workers_port_number, port_number);
+  list_push_back(&structures.workers_port_number, port_number);
 }
 
 static void __handle_message(message message, ipv4_socket connected_socket) {
@@ -131,7 +132,7 @@ static void* __accept_connections(void *args) {
     if (retval) {
       __get_selected_socket(&selected_socket);
       ipv4_socket_accept(&selected_socket, &connected_socket);
-      place_in_pool(&pool, connected_socket);
+      place_in_pool(&structures.pool, connected_socket);
       pthread_cond_signal(&cond_nonempty);
     }
   }
@@ -142,7 +143,7 @@ static void* __get_connections(void *args) {
   ipv4_socket connected_socket;
   message message;
   while (1) {
-    connected_socket = obtain_from_pool(&pool);
+    connected_socket = obtain_from_pool(&structures.pool);
     message = ipv4_socket_get_message(&connected_socket);
     __handle_message(message, connected_socket);
     pthread_cond_signal(&cond_nonfull);

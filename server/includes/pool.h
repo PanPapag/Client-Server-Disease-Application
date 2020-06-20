@@ -1,5 +1,5 @@
 #ifndef __SERVER_POOL__
-	#define __SERVER_POLL__
+	#define __SERVER_POOL__
 
   #include <pthread.h>
 

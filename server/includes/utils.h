@@ -1,13 +1,17 @@
 #ifndef __SERVER_UTILS__
 	#define __SERVER_UTILS__
 
-	typedef struct worker_connect_info {
-		char *hostname;
-    uint16_t port_number;
-  } worker_connect_info;
+	#include "../../common/includes/list.h"
 
-	typedef worker_connect_info* workers_connect_info_ptr;
-	
+	#include "pool.h"
+
+	typedef struct server_structures {
+  	pool_t pool;
+    list_ptr workers_port_number;
+  } server_structures;
+
+  extern server_structures structures;
+
 	/**
 		\brief Creates all data structures needed by server to operate successfully
 	*/
