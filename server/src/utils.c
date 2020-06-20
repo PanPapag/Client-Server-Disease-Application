@@ -74,6 +74,10 @@ static void __handle_message(message message, ipv4_socket connected_socket) {
       printf("consumer - query: %s\n",(char*) message.data);
       break;
     }
+    case HOSTNAME_AND_PORT: {
+      printf("consumer - HOSTNAME AND PORT: %s\n",(char*) message.data);
+      break;
+    }
     case NUM_STATISTICS: {
       __serve_num_statistics(atoi((char*) message.data), connected_socket);
       break;

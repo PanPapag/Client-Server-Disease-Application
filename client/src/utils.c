@@ -9,7 +9,6 @@
 #include "../../common/includes/ipv4_socket.h"
 #include "../../common/includes/message.h"
 #include "../../common/includes/report_utils.h"
-#include "../../common/includes/request.h"
 #include "../../common/includes/string_utils.h"
 #include "../../common/includes/types.h"
 
@@ -26,11 +25,11 @@ static void* __client_threads_function(void *fl) {
 	// Establish connection with server
 	ipv4_socket client_socket;
 	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &client_socket)) {
-		message message = create_query_message(query);
+		message message = message_create(query, QUERY);
 		if (!ipv4_socket_send_message(&client_socket, message)) {
 			report_warning("Message <%s> could not be sent to server!", (char*) message.data);
 		}
-		destroy_message(&message);
+		message_destroy(&message);
 	}
 	pthread_exit(0);
 }

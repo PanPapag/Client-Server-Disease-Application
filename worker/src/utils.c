@@ -225,14 +225,25 @@ void setup_worker_socket(void) {
   }
 }
 
-void send_ip_address_and_port_to_server(void) {
+void send_hostname_and_port_to_server(void) {
   // Get hostname
   char hostname[MAX_BUFFER_SIZE];
   gethostname(hostname, sizeof(hostname));
   // Get port number automatically assigned
   uint16_t port;
   ipv4_socket_get_port(&worker_socket, &port);
-  printf("%s %d\n",hostname, port);
+  // Send hostname and port to server
+  ipv4_socket hostname_port_socket;
+  message message;
+  if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &hostname_port_socket)) {
+    char buffer[MAX_BUFFER_SIZE];
+    sprintf(buffer, "%s %d", hostname, port);
+    message = message_create(buffer, HOSTNAME_AND_PORT);
+    if (!ipv4_socket_send_message(&hostname_port_socket, message)) {
+      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    }
+    message_destroy(&message);
+  }
 }
 
 void send_statistics_to_server(void) {
@@ -242,20 +253,22 @@ void send_statistics_to_server(void) {
     // Send how many file statistics have to be sent
     char num_statistics[12];
     sprintf(num_statistics, "%ld", list_size(structures.files_statistics));
-    message = create_num_statistics_message(num_statistics);
+    message = message_create(num_statistics, NUM_STATISTICS);
     if (!ipv4_socket_send_message(&statistics_socket, message)) {
       report_warning("Message <%s> could not be sent to server!", (char*) message.data);
     }
+    message_destroy(&message);
     // Send actual statistics
     for (size_t i = 1U; i <= list_size(structures.files_statistics); ++i) {
       list_node_ptr list_node = list_get(structures.files_statistics, i);
       char *serialized_statistics_entry = ptr_to_statistics_entry_serialize(
                                             list_node->data_,
                                             structures.diseases_names);
-      message = create_statistics_message(serialized_statistics_entry);
+      message = message_create(serialized_statistics_entry, STATISTICS);
   		if (!ipv4_socket_send_message(&statistics_socket, message)) {
   			report_warning("Message <%s> could not be sent to server!", (char*) message.data);
   		}
+      message_destroy(&message);
       __FREE__(serialized_statistics_entry);
     }
 	}

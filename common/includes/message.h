@@ -9,16 +9,19 @@
   #include "macros.h"
   #include "types.h"
 
-  #define QUERY 'Q'
-  #define NUM_STATISTICS 'N'
-  #define STATISTICS 'S'
-  #define RESPONSE 'R'
+  enum message_header_id {
+    HOSTNAME_AND_PORT,
+    QUERY,
+    NUM_STATISTICS,
+    STATISTICS,
+    RESPONSE
+  };
 
   #define __MESSAGE_BYTES(message) (strlen(message) + 1 ) * sizeof(char)
 
   typedef struct message_header {
       uint32_t bytes;
-      char id;
+      uint8_t id;
   } message_header;
 
   typedef struct message {
@@ -45,14 +48,10 @@
   }
 
   static __INLINE__
-  void destroy_message(message_ptr message) {
+  void message_destroy(message_ptr message) {
     __FREE__(message->data);
   }
 
-  message create_query_message(const char *restrict query);
-
-  message create_num_statistics_message(const char *restrict num_statistics);
-
-  message create_statistics_message(const char *restrict statistics);
+  message message_create(const char *restrict query, int id);
 
 #endif

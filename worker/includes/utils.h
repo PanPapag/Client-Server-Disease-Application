@@ -35,10 +35,10 @@
   void setup_worker_socket(void);
 
   /**
-    \brief Sends ip address and port number to server in order him to connect
+    \brief Sends hostname and port number to server in order him to connect
   */
-  void send_ip_address_and_port_to_server(void);
-  
+  void send_hostname_and_port_to_server(void);
+
   /**
     \brief Creates and connects via statistics socket to the server to send
       all file statistics
