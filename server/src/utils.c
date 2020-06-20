@@ -107,7 +107,6 @@ static void* __accept_connections(void *args) {
       __get_selected_socket(&selected_socket);
       ipv4_socket_accept(&selected_socket, &connected_socket);
       place_in_pool(&pool, connected_socket);
-      // printf("producer: %d\n", connected_socket.socket_fd);
       pthread_cond_signal(&cond_nonempty);
     }
   }

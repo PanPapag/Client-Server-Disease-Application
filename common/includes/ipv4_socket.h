@@ -42,6 +42,9 @@
   __NON_NULL__(1)
   int ipv4_socket_connect(ipv4_socket_ptr socket);
 
+  __NON_NULL__(1)
+  int ipv4_socket_get_port(ipv4_socket_ptr socket, uint16_t *port_number);
+
   __NON_NULL__(1, 3)
   bool ipv4_socket_create_and_connect(string ip_address, uint16_t port_number, ipv4_socket_ptr socket_out);
 

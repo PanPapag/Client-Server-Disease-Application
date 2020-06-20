@@ -28,9 +28,21 @@
   void parse_dirs_and_update_global_data_structures(void);
 
   /**
+    \brief In order to be able to get queries from the server and send the results
+     back to him each worker plays the role of a server in which our actual server
+     connects by the time a query has sent
+  */
+  void setup_worker_socket(void);
+
+  /**
+    \brief Sends ip address and port number to server in order him to connect
+  */
+  void send_ip_address_and_port_to_server(void);
+  
+  /**
     \brief Creates and connects via statistics socket to the server to send
       all file statistics
   */
-  void send_statistics(void);
+  void send_statistics_to_server(void);
 
 #endif

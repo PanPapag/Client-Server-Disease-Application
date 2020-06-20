@@ -1,12 +1,18 @@
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <wordexp.h>
 
+#include <arpa/inet.h>
+#include <netinet/in.h>
+
 #include <sys/errno.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -33,6 +39,8 @@
 worker_structures structures;
 
 worker_options options;
+
+ipv4_socket worker_socket;
 
 void create_global_data_structures(void) {
   structures.patient_record_ht = hash_table_create(NO_BUCKETS, BUCKET_SIZE,
@@ -205,7 +213,29 @@ void parse_dirs_and_update_global_data_structures(void) {
 	}
 }
 
-void send_statistics(void) {
+void setup_worker_socket(void) {
+  if (ipv4_socket_create(0, IPV4_ANY_ADDRESS, &worker_socket) < 0) {
+    die("Could not create address for server to worker socket!");
+  }
+  if (ipv4_socket_bind(&worker_socket) < 0) {
+    die("Could not bind server address to worker socket!");
+  }
+  if (ipv4_socket_listen(&worker_socket) < 0) {
+    die("Could not register server address for listening to worker socket!");
+  }
+}
+
+void send_ip_address_and_port_to_server(void) {
+  // Get hostname
+  char hostname[MAX_BUFFER_SIZE];
+  gethostname(hostname, sizeof(hostname));
+  // Get port number automatically assigned
+  uint16_t port;
+  ipv4_socket_get_port(&worker_socket, &port);
+  printf("%s %d\n",hostname, port);
+}
+
+void send_statistics_to_server(void) {
   ipv4_socket statistics_socket;
   message message;
 	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &statistics_socket)) {

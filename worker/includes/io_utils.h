@@ -5,6 +5,7 @@
   #include <getopt.h>
 
   #include "../../common/includes/attributes.h"
+  #include "../../common/includes/ipv4_socket.h"
 
   static struct option options_spec[] = {
     {"f",    required_argument, NULL, 'f'},
@@ -24,6 +25,8 @@
   } worker_options;
 
   extern worker_options options;
+
+  extern ipv4_socket worker_socket;
 
   /**
     \brief Parses the command line arguments of worker executable and

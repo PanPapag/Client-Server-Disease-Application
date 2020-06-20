@@ -58,6 +58,18 @@ int ipv4_socket_connect(ipv4_socket_ptr socket) {
                  sizeof(socket->address));
 }
 
+int ipv4_socket_get_port(ipv4_socket_ptr socket, uint16_t *port) {
+  struct sockaddr_in sin;
+  socklen_t len = sizeof(sin);
+  if (getsockname(socket->socket_fd, (struct sockaddr *)&sin, &len) == -1) {
+    return -1;
+  }
+  else {
+    *port = (uint16_t) ntohs(sin.sin_port);
+  }
+  return 0;
+}
+
 bool ipv4_socket_create_and_connect(string ip_address, uint16_t port_number, ipv4_socket_ptr socket_out) {
   struct hostent *machine = gethostbyname(ip_address);
   struct in_addr **addr_list = (struct in_addr **) machine->h_addr_list;
