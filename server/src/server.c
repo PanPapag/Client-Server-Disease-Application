@@ -12,8 +12,7 @@ pool_t pool;
 int main(int argc, char *argv[]) {
   parse_command_line_arguments(argc, argv);
   setup_server_connections();
-  initialize_pool(&pool, options.buffer_size);
+  create_global_data_structures();
   create_threads_and_start_server();
-  destroy_pool(&pool);
   return EXIT_SUCCESS;
 }

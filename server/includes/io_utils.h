@@ -5,6 +5,7 @@
 	#include <getopt.h>
 
 	#include "../../common/includes/attributes.h"
+	#include "../../common/includes/list.h"
 	#include "../../common/includes/ipv4_socket.h"
 
   static struct option options_spec[] = {
@@ -21,6 +22,7 @@
     uint16_t buffer_size;
     uint16_t query_port_number;
     uint16_t statistics_port_number;
+		char *workers_ip_address;
   } server_options;
 
 	extern ipv4_socket server_statistics_socket;

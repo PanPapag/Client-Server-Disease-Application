@@ -5,10 +5,13 @@
 
 #include <sys/select.h>
 
+#include "../../common/includes/constants.h"
 #include "../../common/includes/ipv4_socket.h"
+#include "../../common/includes/list.h"
 #include "../../common/includes/message.h"
 #include "../../common/includes/report_utils.h"
 #include "../../common/includes/statistics.h"
+#include "../../common/includes/utils.h"
 
 #include "../includes/io_utils.h"
 #include "../includes/pool.h"
@@ -19,6 +22,8 @@ fd_set server_sockets_set;
 ipv4_socket server_statistics_socket;
 ipv4_socket server_query_socket;
 
+list_ptr workers_port_number;
+
 server_options options;
 
 pool_t pool;
@@ -26,6 +31,11 @@ pool_t pool;
 pthread_cond_t cond_nonempty;
 pthread_cond_t cond_nonfull;
 pthread_mutex_t mtx;
+
+void create_global_data_structures(void) {
+  initialize_pool(&pool, options.buffer_size);
+  workers_port_number = list_create(int*, int_compare, int_print, int_destroy);
+}
 
 static void __setup_statistics_socket(void) {
   if (ipv4_socket_create(options.statistics_port_number, IPV4_ANY_ADDRESS,
@@ -68,6 +78,17 @@ static void __serve_num_statistics(int num_statistics, ipv4_socket connected_soc
   }
 }
 
+static void __serve_hostname_and_port(char *hostname_and_port) {
+  char *hostname;
+  int *port_number;
+  // get the first token (aka hostname)
+  options.workers_ip_address = strdup(strtok(hostname_and_port, SPACE));
+  // get the second token (aka port number)
+  port_number = int_create(atoi(strtok(NULL, SPACE)));
+  // Save worker's port number to list
+  list_push_back(&workers_port_number, port_number);
+}
+
 static void __handle_message(message message, ipv4_socket connected_socket) {
   switch (message.header.id) {
     case QUERY: {
@@ -75,7 +96,7 @@ static void __handle_message(message message, ipv4_socket connected_socket) {
       break;
     }
     case HOSTNAME_AND_PORT: {
-      printf("consumer - HOSTNAME AND PORT: %s\n",(char*) message.data);
+      __serve_hostname_and_port((char*) message.data);
       break;
     }
     case NUM_STATISTICS: {
