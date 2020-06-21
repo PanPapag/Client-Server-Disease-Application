@@ -67,29 +67,36 @@ def main():
         # Generate numQueries random queries
         for i in range(args.numQueries):
             command = random.choice(commands)
+            query = str(command.split()[0])
+            query += " "
             for index, token in enumerate(command.split()):
                 if index > 0:
                     if token == 'disease':
-                        token = random.choice(diseases)
+                        query += random.choice(diseases)
+                        query += " "
                     elif token == '[country]':
                         flip = random.randint(0, 1)
                         if flip:
-                            token = random.choice(countries)
-                        else:
-                            token = ''
+                            query += random.choice(countries)
+                            query += " "
                     elif token == 'country':
-                        token = random.choice(countries)
+                        query += random.choice(countries)
+                        query += " "
                     elif token == 'k':
-                        token = str(random.randint(1, args.maxK))
+                        query += str(random.randint(1, args.maxK))
+                        query += " "
                     elif token == 'recordID':
-                        token = str(random.randint(0, args.maxRecordID))
+                        query += str(random.randint(0, args.maxRecordID))
+                        query += " "
                     elif token == 'date1':
-                        token = str(random_date(start_date, end_date))
-                        command_date1 = datetime.datetime.strptime(token, '%d-%m-%Y')
+                        temp = str(random_date(start_date, end_date))
+                        query += temp
+                        query += " "
+                        command_date1 = datetime.datetime.strptime(temp, '%d-%m-%Y')
                     elif token == 'date2':
-                        token = str(random_date(command_date1, end_date))
-                query_file.write(token)
-                query_file.write(" ")
+                        query += str(random_date(command_date1, end_date))
+                        query += " "
+            query_file.write(query.rstrip())
             query_file.write("\n")
 
 if __name__ == '__main__':
