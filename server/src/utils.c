@@ -100,6 +100,8 @@ static void __server_query(char *query, ipv4_socket connected_socket) {
       if (!ipv4_socket_send_message(&connected_socket, message)) {
         report_warning("Message <%s> could not be sent to server!", (char*) message.data);
       }
+      message = ipv4_socket_get_message(&connected_socket);
+      printf("%s\n",(char*) message.data);
       message_destroy(&message);
     }
   }

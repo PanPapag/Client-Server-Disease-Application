@@ -281,5 +281,9 @@ void start_worker_as_server(void) {
     ipv4_socket_accept(&worker_socket, &server_socket);
     message = ipv4_socket_get_message(&server_socket);
     printf("%s\n", (char*) message.data);
+    message = message_create("RESULT", RESPONSE);
+    if (!ipv4_socket_send_message(&server_socket, message)) {
+      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    }
   }
 }
