@@ -11,8 +11,10 @@
 #include "../../common/includes/file_utils.h"
 #include "../../common/includes/hash_table.h"
 #include "../../common/includes/io_utils.h"
+#include "../../common/includes/ipv4_socket.h"
 #include "../../common/includes/list.h"
 #include "../../common/includes/macros.h"
+#include "../../common/includes/message.h"
 #include "../../common/includes/report_utils.h"
 #include "../../common/includes/statistics.h"
 #include "../../common/includes/string_utils.h"
@@ -29,6 +31,8 @@
 worker_structures structures;
 
 worker_options options;
+
+ipv4_socket server_socket;
 
 static inline
 void __count_patients_between(avl_node_ptr current_root,
@@ -86,9 +90,14 @@ int __num_patients_between(avl_ptr disease_avl,
 }
 
 void execute_disease_frequency(int argc, char **argv) {
+  message message;
   void* result = hash_table_find(structures.disease_ht, argv[0]);
   if (result == NULL) {
-    printf("NO result!\n");
+    message = message_create(NO_RESPONSE, RESPONSE);
+    if (!ipv4_socket_send_message(&server_socket, message)) {
+      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    }
+    message_destroy(&message);
   } else {
     avl_ptr disease_avl = (avl_ptr) result;
     int num_patients;
@@ -99,7 +108,11 @@ void execute_disease_frequency(int argc, char **argv) {
     }
     char num_patients_buffer[12];
     sprintf(num_patients_buffer, "%d", num_patients);
-    printf("%s\n", num_patients_buffer);
+    message = message_create(num_patients_buffer, RESPONSE);
+    if (!ipv4_socket_send_message(&server_socket, message)) {
+      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    }
+    message_destroy(&message);
   }
 }
 
@@ -158,13 +171,18 @@ void __util_execute_topk_age_ranges(avl_ptr disease_avl,
 }
 
 void execute_topk_age_ranges(char **argv) {
+  message message;
   int k = atoi(argv[0]);
   char *country = argv[1];
   char *disease = argv[2];
   /* Get for the given country its AVL tree */
   void *result = hash_table_find(structures.disease_ht, disease);
   if (result == NULL) {
-    printf("NO result!\n");
+    message = message_create(NO_RESPONSE, RESPONSE);
+    if (!ipv4_socket_send_message(&server_socket, message)) {
+      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    }
+    message_destroy(&message);
   } else {
     avl_ptr disease_avl = (avl_ptr) result;
     /* Store in a map like array num_patients per age group */
@@ -199,7 +217,11 @@ void execute_topk_age_ranges(char **argv) {
         char output_buffer[MAX_BUFFER_SIZE];
         char* age_group_name = get_age_group_name(age_groups_stats_entry->age_group);
         sprintf(output_buffer, "%s: %0.2f%%", age_group_name, age_group_per);
-        printf("%s\n", output_buffer);
+        message = message_create(output_buffer, RESPONSE);
+        if (!ipv4_socket_send_message(&server_socket, message)) {
+          report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+        }
+        message_destroy(&message);
       }
     }
     /* Clear memory allocated */
@@ -211,68 +233,111 @@ void execute_topk_age_ranges(char **argv) {
 }
 
 void execute_search_patient_record(char **argv) {
+  message message;
   void *result = hash_table_find(structures.patient_record_ht, argv[0]);
   if (result == NULL) {
-    printf("NO result!\n");
+    message = message_create(NO_RESPONSE, RESPONSE);
+    if (!ipv4_socket_send_message(&server_socket, message)) {
+      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    }
+    message_destroy(&message);
   } else {
     char *stringified_patient_record = patient_record_stringify(result);
-    printf("%s\n", stringified_patient_record);
+    message = message_create(stringified_patient_record, RESPONSE);
+    if (!ipv4_socket_send_message(&server_socket, message)) {
+      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    }
+    message_destroy(&message);
     __FREE__(stringified_patient_record);
   }
 }
 
 void execute_num_patients_admissions(int argc, char **argv) {
+  message message;
   void *result = hash_table_find(structures.disease_ht, argv[0]);
   if (result == NULL) {
-    printf("NO result!\n");
+    message = message_create(NO_RESPONSE, RESPONSE);
+    if (!ipv4_socket_send_message(&server_socket, message)) {
+      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    }
+    message_destroy(&message);
   } else {
     avl_ptr disease_avl = (avl_ptr) result;
     int num_patients;
     if (argc == 3){
       char num_writes_buffer[12];
       sprintf(num_writes_buffer, "%ld", list_size(structures.countries_names));
-      printf("%s\n", num_writes_buffer);
+      message = message_create(num_writes_buffer, RESPONSE);
+      if (!ipv4_socket_send_message(&server_socket, message)) {
+        report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+      }
+      message_destroy(&message);
       for (size_t i = 1U; i <= list_size(structures.countries_names); ++i) {
         list_node_ptr list_node = list_get(structures.countries_names, i);
         char* country = (*(char**) list_node->data_);
         num_patients = __num_patients_between(disease_avl, get_entry_date, argv[1], argv[2], country);
         char output_buffer[MAX_BUFFER_SIZE];
         sprintf(output_buffer, "%s %d", country, num_patients);
-        printf("%s\n", output_buffer);
+        message = message_create(output_buffer, RESPONSE);
+        if (!ipv4_socket_send_message(&server_socket, message)) {
+          report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+        }
+        message_destroy(&message);
       }
     } else {
       num_patients = __num_patients_between(disease_avl, get_entry_date, argv[1], argv[2], argv[3]);
       char num_patients_buffer[12];
       sprintf(num_patients_buffer, "%d", num_patients);
-      printf("%s\n",num_patients_buffer);
+      message = message_create(num_patients_buffer, RESPONSE);
+      if (!ipv4_socket_send_message(&server_socket, message)) {
+        report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+      }
+      message_destroy(&message);
     }
   }
 }
 
 void execute_num_patients_discharges(int argc, char **argv) {
+  message message;
   void *result = hash_table_find(structures.disease_ht, argv[0]);
   if (result == NULL) {
-    printf("NO result!\n");
+    message = message_create(NO_RESPONSE, RESPONSE);
+    if (!ipv4_socket_send_message(&server_socket, message)) {
+      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    }
+    message_destroy(&message);
   } else {
     avl_ptr disease_avl = (avl_ptr) result;
     int num_patients;
     if (argc == 3){
       char num_writes_buffer[12];
       sprintf(num_writes_buffer, "%ld", list_size(structures.countries_names));
-      printf("%s\n", num_writes_buffer);
+      message = message_create(num_writes_buffer, RESPONSE);
+      if (!ipv4_socket_send_message(&server_socket, message)) {
+        report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+      }
+      message_destroy(&message);
       for (size_t i = 1U; i <= list_size(structures.countries_names); ++i) {
         list_node_ptr list_node = list_get(structures.countries_names, i);
         char* country = (*(char**) list_node->data_);
         num_patients = __num_patients_between(disease_avl, get_exit_date, argv[1], argv[2], country);
         char output_buffer[MAX_BUFFER_SIZE];
         sprintf(output_buffer, "%s %d", country, num_patients);
-        printf("%s\n", output_buffer);
+        message = message_create(output_buffer, RESPONSE);
+        if (!ipv4_socket_send_message(&server_socket, message)) {
+          report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+        }
+        message_destroy(&message);
       }
     } else {
       num_patients = __num_patients_between(disease_avl, get_exit_date, argv[1], argv[2], argv[3]);
       char num_patients_buffer[12];
       sprintf(num_patients_buffer, "%d", num_patients);
-      printf("%s\n", num_patients_buffer);
+      message = message_create(num_patients_buffer, RESPONSE);
+      if (!ipv4_socket_send_message(&server_socket, message)) {
+        report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+      }
+      message_destroy(&message);
     }
   }
 }

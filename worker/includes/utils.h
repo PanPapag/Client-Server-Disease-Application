@@ -2,6 +2,7 @@
   #define __WORKER_UTILS__
 
   #include "../../common/includes/hash_table.h"
+  #include "../../common/includes/ipv4_socket.h"
   #include "../../common/includes/list.h"
 
   typedef struct worker_structures {
@@ -15,6 +16,9 @@
   } worker_structures;
 
   extern worker_structures structures;
+
+  extern ipv4_socket server_socket;
+  extern ipv4_socket worker_socket;
 
   /**
     \brief Creates all data structures needed by worker to operate successfully

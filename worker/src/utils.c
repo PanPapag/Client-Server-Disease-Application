@@ -40,6 +40,7 @@ worker_structures structures;
 
 worker_options options;
 
+ipv4_socket server_socket;
 ipv4_socket worker_socket;
 
 void create_global_data_structures(void) {
@@ -275,15 +276,10 @@ void send_statistics_to_server(void) {
 }
 
 void start_worker_as_server(void) {
-  ipv4_socket server_socket;
   message message;
   while (1) {
     ipv4_socket_accept(&worker_socket, &server_socket);
     message = ipv4_socket_get_message(&server_socket);
-    printf("%s\n", (char*) message.data);
-    message = message_create("RESULT", RESPONSE);
-    if (!ipv4_socket_send_message(&server_socket, message)) {
-      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
-    }
+    __handle_command((char*) message.data);
   }
 }
