@@ -90,19 +90,27 @@ static void __serve_hostname_and_port(char *hostname_and_port) {
   list_push_back(&structures.workers_port_number, port_number);
 }
 
-static void __server_query(char *query, ipv4_socket connected_socket) {
+static void __serve_query(char *query, ipv4_socket connected_socket) {
+  ipv4_socket worker_socket;
   message message;
   for (size_t i = 1U; i < list_size(structures.workers_port_number); ++i) {
     list_node_ptr list_node = list_get(structures.workers_port_number, i);
     int port_number = (*(int*) list_node->data_);
-    if (ipv4_socket_create_and_connect(options.workers_ip_address, port_number, &connected_socket)) {
+    // Create connections with worker i
+    if (ipv4_socket_create_and_connect(options.workers_ip_address, port_number, &worker_socket)) {
+      // Send query to worker i
       message = message_create(query, QUERY);
-      if (!ipv4_socket_send_message(&connected_socket, message)) {
-        report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+      if (!ipv4_socket_send_message(&worker_socket, message)) {
+        report_warning("Message <%s> could not be sent to worker!", (char*) message.data);
       }
-      message = ipv4_socket_get_message(&connected_socket);
-      printf("%s\n",(char*) message.data);
       message_destroy(&message);
+      // Get result from the worker
+      message = ipv4_socket_get_message(&worker_socket);
+      printf("%s\n",(char*) message.data);
+      // // Send result back to client
+      if (!ipv4_socket_send_message(&connected_socket, message)) {
+        report_warning("Message <%s> could not be sent to client!", (char*) message.data);
+      }
     }
   }
 }
@@ -110,7 +118,7 @@ static void __server_query(char *query, ipv4_socket connected_socket) {
 static void __handle_message(message message, ipv4_socket connected_socket) {
   switch (message.header.id) {
     case QUERY: {
-      __server_query((char*) message.data, connected_socket);
+      __serve_query((char*) message.data, connected_socket);
       break;
     }
     case HOSTNAME_AND_PORT: {

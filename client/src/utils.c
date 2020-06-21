@@ -23,13 +23,17 @@ static void* __client_threads_function(void *fl) {
 	char *query = (char*) fl;
   pthread_barrier_wait(&barrier);
 	// Establish connection with server
-	ipv4_socket client_socket;
-	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &client_socket)) {
-		message message = message_create(query, QUERY);
-		if (!ipv4_socket_send_message(&client_socket, message)) {
+	ipv4_socket server_socket;
+	message message;
+	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &server_socket)) {
+		message = message_create(query, QUERY);
+		printf("%s\n",(char*) message.data);
+		if (!ipv4_socket_send_message(&server_socket, message)) {
 			report_warning("Message <%s> could not be sent to server!", (char*) message.data);
 		}
 		message_destroy(&message);
+		message = ipv4_socket_get_message(&server_socket);
+		printf("%s\n",(char*) message.data);
 	}
 	pthread_exit(0);
 }
