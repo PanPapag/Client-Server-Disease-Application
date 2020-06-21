@@ -17,6 +17,8 @@
 
 client_options options;
 
+pthread_mutex_t mtx;
+
 static pthread_barrier_t barrier;
 
 static void* __client_threads_function(void *fl) {
@@ -26,14 +28,26 @@ static void* __client_threads_function(void *fl) {
 	ipv4_socket server_socket;
 	message message;
 	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &server_socket)) {
+		// Send query to server
 		message = message_create(query, QUERY);
-		printf("%s\n",(char*) message.data);
 		if (!ipv4_socket_send_message(&server_socket, message)) {
 			report_warning("Message <%s> could not be sent to server!", (char*) message.data);
 		}
+		// Clear message
 		message_destroy(&message);
+		// Get result from the server
 		message = ipv4_socket_get_message(&server_socket);
-		printf("%s\n",(char*) message.data);
+		// Using mutex for clear output
+		pthread_mutex_init(&mtx, 0);
+		printf("Q: %s\n", query);
+		if (message.header.id != RESPONSE) {
+			report_warning("Unknown message header id was sent!");
+		} else {
+			printf("R: %s\n", (char*) message.data);
+		}
+		pthread_mutex_destroy(&mtx);
+		// Clear message
+		message_destroy(&message);
 	}
 	pthread_exit(0);
 }

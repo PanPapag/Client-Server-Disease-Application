@@ -76,7 +76,7 @@ static void __serve_num_statistics(int num_statistics, ipv4_socket connected_soc
     }
     serialized_statistics_entry_print((char*) message.data);
   }
-  pthread_mutex_init(&output_mtx, 0);
+  pthread_mutex_destroy(&output_mtx);
 }
 
 static void __serve_hostname_and_port(char *hostname_and_port) {
