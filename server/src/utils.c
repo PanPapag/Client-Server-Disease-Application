@@ -90,10 +90,25 @@ static void __serve_hostname_and_port(char *hostname_and_port) {
   list_push_back(&structures.workers_port_number, port_number);
 }
 
+static void __server_query(char *query, ipv4_socket connected_socket) {
+  message message;
+  for (size_t i = 1U; i < list_size(structures.workers_port_number); ++i) {
+    list_node_ptr list_node = list_get(structures.workers_port_number, i);
+    int port_number = (*(int*) list_node->data_);
+    if (ipv4_socket_create_and_connect(options.workers_ip_address, port_number, &connected_socket)) {
+      message = message_create(query, QUERY);
+      if (!ipv4_socket_send_message(&connected_socket, message)) {
+        report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+      }
+      message_destroy(&message);
+    }
+  }
+}
+
 static void __handle_message(message message, ipv4_socket connected_socket) {
   switch (message.header.id) {
     case QUERY: {
-      printf("consumer - query: %s\n",(char*) message.data);
+      __server_query((char*) message.data, connected_socket);
       break;
     }
     case HOSTNAME_AND_PORT: {

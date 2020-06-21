@@ -12,5 +12,6 @@ int main(int argc, char *argv[]) {
   setup_worker_socket();
   send_hostname_and_port_to_server();
   send_statistics_to_server();
+  start_worker_as_server();
   return EXIT_SUCCESS;
 }

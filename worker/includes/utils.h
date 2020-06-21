@@ -45,4 +45,9 @@
   */
   void send_statistics_to_server(void);
 
+  /**
+    \brief Receives queries from server and sends back the result
+  */
+  void start_worker_as_server(void);
+
 #endif

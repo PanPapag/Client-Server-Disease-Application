@@ -273,3 +273,13 @@ void send_statistics_to_server(void) {
     }
 	}
 }
+
+void start_worker_as_server(void) {
+  ipv4_socket server_socket;
+  message message;
+  while (1) {
+    ipv4_socket_accept(&worker_socket, &server_socket);
+    message = ipv4_socket_get_message(&server_socket);
+    printf("%s\n", (char*) message.data);
+  }
+}
