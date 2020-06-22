@@ -94,14 +94,14 @@ void serve_topk_age_ranges(char *query, int k, ipv4_socket connected_socket) {
       }
       message_destroy(&message);
       // Get result from worker i
-      for (size_t j = 0; j < k; ++j) {
+      for (size_t j = 0U; j < k; ++j) {
         message = ipv4_socket_get_message(&worker_socket);
         if (message.header.id != RESPONSE) {
           report_warning("Unknown format instead of response has been read!");
         } else {
           if (strcmp((char*) message.data, NO_RESPONSE)) {
             found_result = true;
-            printf("%s\n", (char*) message.data);
+            printf("R: %s\n", (char*) message.data);
           }
           // Send result back to client
           if (!ipv4_socket_send_message(&connected_socket, message)) {
@@ -151,7 +151,7 @@ void serve_search_patient_record(char *query, ipv4_socket connected_socket) {
       } else {
         if (strcmp((char*) message.data, NO_RESPONSE)) {
           found_result = true;
-          printf("%s\n", (char*) message.data);
+          printf("R: %s\n", (char*) message.data);
         }
         // Send result back to client
         if (!ipv4_socket_send_message(&connected_socket, message)) {
