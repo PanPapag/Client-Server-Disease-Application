@@ -281,5 +281,6 @@ void start_worker_as_server(void) {
     ipv4_socket_accept(&worker_socket, &server_socket);
     message = ipv4_socket_get_message(&server_socket);
     __handle_command((char*) message.data);
+    close(server_socket.socket_fd);
   }
 }

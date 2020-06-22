@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <wordexp.h>
 
 #include "../../common/includes/constants.h"

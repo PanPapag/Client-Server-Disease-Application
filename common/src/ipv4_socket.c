@@ -86,7 +86,7 @@ bool ipv4_socket_create_and_connect(string ip_address, uint16_t port_number, ipv
       return false;
   }
   if (ipv4_socket_connect(socket_out) < 0) {
-      report_error("Could not connect to client with IP: %s and Port: %" PRIu16,
+      report_error("Could not connect to IP: %s and Port: %" PRIu16,
                    ip_address, port_number);
       return false;
   }
