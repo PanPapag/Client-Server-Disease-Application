@@ -1,4 +1,6 @@
 #include <pthread.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,6 +27,7 @@ static void* __client_threads_function(void *fl) {
 	char *query = (char*) fl;
   pthread_barrier_wait(&barrier);
 	// Establish connection with server
+	bool found_result = false;
 	ipv4_socket server_socket;
 	message message;
 	if (ipv4_socket_create_and_connect(options.server_ip, options.server_port_number, &server_socket)) {
@@ -35,19 +38,33 @@ static void* __client_threads_function(void *fl) {
 		}
 		// Clear message
 		message_destroy(&message);
-		// Get result from the server
+		// Firtly get number of messages client is going to recieve from server
+		// for this specific query
 		message = ipv4_socket_get_message(&server_socket);
-		// Using mutex for clear output
-		pthread_mutex_init(&mtx, 0);
-		printf("Q: %s\n", query);
-		if (message.header.id != RESPONSE) {
-			report_warning("Unknown message header id was sent!");
-		} else {
-			printf("R: %s\n", (char*) message.data);
+		size_t no_messages = atoi((char*) message.data);
+		// Get no_messages message from the server
+		for (size_t i = 0U; i < no_messages; ++i) {
+			message = ipv4_socket_get_message(&server_socket);
+			// Using mutex for clear output
+			pthread_mutex_lock(&mtx);
+			if (i == 0U) {
+				printf("Q: %s\n", query);
+			}
+			if (message.header.id != RESPONSE) {
+				report_warning("Unknown message header id was sent!");
+			} else {
+				if (strcmp((char*) message.data, NO_RESPONSE)) {
+					found_result = true;
+					printf("R: %s\n", (char*) message.data);
+				}
+				if ((i == no_messages - 1) && !found_result) {
+					printf("R: -\n");
+				}
+			}
+			pthread_mutex_unlock(&mtx);
+			// Clear message
+			message_destroy(&message);
 		}
-		pthread_mutex_destroy(&mtx);
-		// Clear message
-		message_destroy(&message);
 	}
 	pthread_exit(0);
 }

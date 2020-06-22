@@ -1,3 +1,5 @@
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <wordexp.h>
 
@@ -9,6 +11,8 @@
 #include "../includes/io_utils.h"
 #include "../includes/queries.h"
 #include "../includes/utils.h"
+
+pthread_mutex_t output_mtx;
 
 server_options options;
 
@@ -42,6 +46,12 @@ void serve_num_patient(char *query, ipv4_socket connected_socket) {
       message_destroy(&message);
     }
   }
+  // Update client that is going to recieve a single message
+  message = message_create("1", RESPONSE);
+  if (!ipv4_socket_send_message(&connected_socket, message)) {
+    report_warning("Message <%s> could not be sent to client!", (char*) message.data);
+  }
+  message_destroy(&message);
   // Send result back to client
   sprintf(result_buf, "%d", result);
   message = message_create(result_buf, RESPONSE);
@@ -49,13 +59,28 @@ void serve_num_patient(char *query, ipv4_socket connected_socket) {
     report_warning("Message <%s> could not be sent to client!", (char*) message.data);
   }
   message_destroy(&message);
+  // Print query and response to server
+  pthread_mutex_lock(&output_mtx);
+  printf("Q: %s\n", query);
+  printf("R: %d\n", result);
+  pthread_mutex_unlock(&output_mtx);
 }
 
 void serve_search_patient_record(char *query, ipv4_socket connected_socket) {
+  bool found_result = false;
   ipv4_socket worker_socket;
   message message;
-  char result[MAX_BUFFER_SIZE];
+  char no_messages_buf[12];
+  // Update client to be ready to recieve num_workers messages
+  sprintf(no_messages_buf, "%ld", list_size(structures.workers_port_number));
+  message = message_create(no_messages_buf, RESPONSE);
+  if (!ipv4_socket_send_message(&connected_socket, message)) {
+    report_warning("Message <%s> could not be sent to client!", (char*) message.data);
+  }
+  message_destroy(&message);
   // Send message from each worker
+  pthread_mutex_lock(&output_mtx);
+  printf("Q: %s\n", query);
   for (size_t i = 1U; i <= list_size(structures.workers_port_number); ++i) {
     list_node_ptr list_node = list_get(structures.workers_port_number, i);
     int port_number = (*(int*) list_node->data_);
@@ -72,18 +97,22 @@ void serve_search_patient_record(char *query, ipv4_socket connected_socket) {
       if (message.header.id != RESPONSE) {
         report_warning("Unknown format instead of response has been read!");
       } else {
-        printf("%s\n", query);
-        printf("%s\n", (char*) message.data);
+        if (strcmp((char*) message.data, NO_RESPONSE)) {
+          found_result = true;
+          printf("%s\n", (char*) message.data);
+        }
+        // Send result back to client
+        if (!ipv4_socket_send_message(&connected_socket, message)) {
+          report_warning("Message <%s> could not be sent to client!", (char*) message.data);
+        }
       }
       message_destroy(&message);
     }
   }
-  // Send result back to client
-  message = message_create("TEST", RESPONSE);
-  if (!ipv4_socket_send_message(&connected_socket, message)) {
-    report_warning("Message <%s> could not be sent to client!", (char*) message.data);
+  if (!found_result) {
+    printf("R: -\n");
   }
-  message_destroy(&message);
+  pthread_mutex_unlock(&output_mtx);
 }
 
 void handle_queries(char *query, ipv4_socket connected_socket) {
