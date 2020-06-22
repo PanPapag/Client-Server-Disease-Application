@@ -4,7 +4,7 @@
   #include "../../common/includes/ipv4_socket.h"
 
 	#define SERVE_DISEASE_FREQUENCY(query, socket) serve_num_patient(query, socket)
-	#define SERVE_TOPK_AGE_RANGES(query, socket) serve_topk_age_ranges(query, socket)
+	#define SERVE_TOPK_AGE_RANGES(query, k, socket) serve_topk_age_ranges(query, k, socket)
 	#define SERVE_SEACH_PATIENT_RECORD(query, socket) serve_search_patient_record(query, socket)
 	#define SERVE_NUM_PATIENT_ADMISSIONS(query, socket) serve_num_patient(query, socket)
 	#define SERVE_NUM_PATIENT_DISCHARGES(query, socket) serve_num_patient(query, socket)

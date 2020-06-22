@@ -178,11 +178,13 @@ void execute_topk_age_ranges(char **argv) {
   /* Get for the given country its AVL tree */
   void *result = hash_table_find(structures.country_ht, country);
   if (result == NULL) {
-    message = message_create(NO_RESPONSE, RESPONSE);
-    if (!ipv4_socket_send_message(&server_socket, message)) {
-      report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+    for (size_t i = 0U; i < k; ++i) {
+      message = message_create(NO_RESPONSE, RESPONSE);
+      if (!ipv4_socket_send_message(&server_socket, message)) {
+        report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+      }
+      message_destroy(&message);
     }
-    message_destroy(&message);
   } else {
     result = hash_table_find(structures.disease_ht, disease);
     if (result != NULL) {
@@ -232,11 +234,13 @@ void execute_topk_age_ranges(char **argv) {
         __FREE__(age_groups_stats[i]);
       }
     } else {
-      message = message_create(NO_RESPONSE, RESPONSE);
-      if (!ipv4_socket_send_message(&server_socket, message)) {
-        report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+      for (size_t i = 0U; i < k; ++i) {
+        message = message_create(NO_RESPONSE, RESPONSE);
+        if (!ipv4_socket_send_message(&server_socket, message)) {
+          report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+        }
+        message_destroy(&message);
       }
-      message_destroy(&message);
     }
   }
 }
