@@ -67,7 +67,32 @@ void serve_num_patient(char *query, ipv4_socket connected_socket) {
 }
 
 void serve_topk_age_ranges(char *query, ipv4_socket connected_socket) {
+  ipv4_socket worker_socket;
   message message;
+  char result[MAX_BUFFER_SIZE];
+  for (size_t i = 1U; i <= list_size(structures.workers_port_number); ++i) {
+    list_node_ptr list_node = list_get(structures.workers_port_number, i);
+    int port_number = (*(int*) list_node->data_);
+    // Create connections with worker i
+    if (ipv4_socket_create_and_connect(options.workers_ip_address, port_number, &worker_socket)) {
+      // Send query to worker i
+      message = message_create(query, QUERY);
+      if (!ipv4_socket_send_message(&worker_socket, message)) {
+        report_warning("Message <%s> could not be sent to worker!", (char*) message.data);
+      }
+      message_destroy(&message);
+      // Get result from the worker
+      message = ipv4_socket_get_message(&worker_socket);
+      if (message.header.id != RESPONSE) {
+        report_warning("Unknown format instead of response has been read!");
+      } else {
+        if (strcmp((char*) message.data, NO_RESPONSE)) {
+          strcpy(result, (char*) message.data);
+        }
+      }
+      message_destroy(&message);
+    }
+  }
   // Update client that is going to receive a single message
   message = message_create("1", RESPONSE);
   if (!ipv4_socket_send_message(&connected_socket, message)) {
@@ -75,7 +100,7 @@ void serve_topk_age_ranges(char *query, ipv4_socket connected_socket) {
   }
   message_destroy(&message);
   // Send result back to client
-  message = message_create("NOT YET", RESPONSE);
+  message = message_create(result, RESPONSE);
   if (!ipv4_socket_send_message(&connected_socket, message)) {
     report_warning("Message <%s> could not be sent to client!", (char*) message.data);
   }
@@ -83,7 +108,8 @@ void serve_topk_age_ranges(char *query, ipv4_socket connected_socket) {
   // Print query and response to server
   pthread_mutex_lock(&output_mtx);
   printf("Q: %s\n", query);
-  printf("R: NOT YET\n");
+  printf("R:\n");
+  printf("\t%s\n", result);
   pthread_mutex_unlock(&output_mtx);
 }
 

@@ -176,7 +176,7 @@ void execute_topk_age_ranges(char **argv) {
   char *country = argv[1];
   char *disease = argv[2];
   /* Get for the given country its AVL tree */
-  void *result = hash_table_find(structures.disease_ht, disease);
+  void *result = hash_table_find(structures.country_ht, country);
   if (result == NULL) {
     message = message_create(NO_RESPONSE, RESPONSE);
     if (!ipv4_socket_send_message(&server_socket, message)) {
@@ -184,50 +184,59 @@ void execute_topk_age_ranges(char **argv) {
     }
     message_destroy(&message);
   } else {
-    avl_ptr disease_avl = (avl_ptr) result;
-    /* Store in a map like array num_patients per age group */
-    int *patients_per_group = __CALLOC__(NO_AGE_GROUPS, int);
-    /* Update patients_per_group */
-    __util_execute_topk_age_ranges(disease_avl, get_entry_date, argv[3], argv[4],
-                                   country, &patients_per_group);
-    /* Copy patients_per_group content into struct age_groups_stats_t */
-    age_groups_stats_ptr age_groups_stats[NO_AGE_GROUPS];
-    int total_num_patients = 0;
-    for (int i = 0; i < NO_AGE_GROUPS; ++i) {
-      age_groups_stats[i] = (age_groups_stats_ptr) malloc(sizeof(*age_groups_stats[i]));
-      age_groups_stats[i]->age_group = i;
-      age_groups_stats[i]->no_patients = patients_per_group[i];
-      total_num_patients += patients_per_group[i];
-    }
-    __FREE__(patients_per_group);
-    /*
-      Build on the fly a max heap and insert there the elements
-      of the patients_per_group map array
-    */
-    heap_ptr heap = heap_create(age_groups_stats_compare, NULL, NULL);
-    for (size_t i = 0U; i < NO_AGE_GROUPS; ++i) {
-      heap_insert_max(&heap, age_groups_stats[i]);
-    }
-    /* Extract top k */
-    for (size_t i = 0U; i < k; ++i) {
-      result = heap_extract_max(&heap);
-      if (result != NULL) {
-        age_groups_stats_ptr age_groups_stats_entry = (age_groups_stats_ptr) result;
-        double age_group_per = (double) age_groups_stats_entry->no_patients / total_num_patients * 100;
-        char output_buffer[MAX_BUFFER_SIZE];
-        char* age_group_name = get_age_group_name(age_groups_stats_entry->age_group);
-        sprintf(output_buffer, "%s: %0.2f%%", age_group_name, age_group_per);
-        message = message_create(output_buffer, RESPONSE);
-        if (!ipv4_socket_send_message(&server_socket, message)) {
-          report_warning("Message <%s> could not be sent to server!", (char*) message.data);
-        }
-        message_destroy(&message);
+    result = hash_table_find(structures.disease_ht, disease);
+    if (result != NULL) {
+      avl_ptr disease_avl = (avl_ptr) result;
+      /* Store in a map like array num_patients per age group */
+      int *patients_per_group = __CALLOC__(NO_AGE_GROUPS, int);
+      /* Update patients_per_group */
+      __util_execute_topk_age_ranges(disease_avl, get_entry_date, argv[3], argv[4],
+                                     country, &patients_per_group);
+      /* Copy patients_per_group content into struct age_groups_stats_t */
+      age_groups_stats_ptr age_groups_stats[NO_AGE_GROUPS];
+      int total_num_patients = 0;
+      for (int i = 0; i < NO_AGE_GROUPS; ++i) {
+        age_groups_stats[i] = (age_groups_stats_ptr) malloc(sizeof(*age_groups_stats[i]));
+        age_groups_stats[i]->age_group = i;
+        age_groups_stats[i]->no_patients = patients_per_group[i];
+        total_num_patients += patients_per_group[i];
       }
-    }
-    /* Clear memory allocated */
-    heap_clear(heap);
-    for (int i = 0; i < NO_AGE_GROUPS; ++i) {
-      __FREE__(age_groups_stats[i]);
+      __FREE__(patients_per_group);
+      /*
+        Build on the fly a max heap and insert there the elements
+        of the patients_per_group map array
+      */
+      heap_ptr heap = heap_create(age_groups_stats_compare, NULL, NULL);
+      for (size_t i = 0U; i < NO_AGE_GROUPS; ++i) {
+        heap_insert_max(&heap, age_groups_stats[i]);
+      }
+      /* Extract top k */
+      for (size_t i = 0U; i < k; ++i) {
+        result = heap_extract_max(&heap);
+        if (result != NULL) {
+          age_groups_stats_ptr age_groups_stats_entry = (age_groups_stats_ptr) result;
+          double age_group_per = (double) age_groups_stats_entry->no_patients / total_num_patients * 100;
+          char output_buffer[MAX_BUFFER_SIZE];
+          char* age_group_name = get_age_group_name(age_groups_stats_entry->age_group);
+          sprintf(output_buffer, "%s: %0.2f%%", age_group_name, age_group_per);
+          message = message_create(output_buffer, RESPONSE);
+          if (!ipv4_socket_send_message(&server_socket, message)) {
+            report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+          }
+          message_destroy(&message);
+        }
+      }
+      /* Clear memory allocated */
+      heap_clear(heap);
+      for (int i = 0; i < NO_AGE_GROUPS; ++i) {
+        __FREE__(age_groups_stats[i]);
+      }
+    } else {
+      message = message_create(NO_RESPONSE, RESPONSE);
+      if (!ipv4_socket_send_message(&server_socket, message)) {
+        report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+      }
+      message_destroy(&message);
     }
   }
 }
