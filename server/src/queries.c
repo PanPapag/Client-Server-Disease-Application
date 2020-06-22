@@ -46,7 +46,7 @@ void serve_num_patient(char *query, ipv4_socket connected_socket) {
       message_destroy(&message);
     }
   }
-  // Update client that is going to recieve a single message
+  // Update client that is going to receive a single message
   message = message_create("1", RESPONSE);
   if (!ipv4_socket_send_message(&connected_socket, message)) {
     report_warning("Message <%s> could not be sent to client!", (char*) message.data);
@@ -63,6 +63,27 @@ void serve_num_patient(char *query, ipv4_socket connected_socket) {
   pthread_mutex_lock(&output_mtx);
   printf("Q: %s\n", query);
   printf("R: %d\n", result);
+  pthread_mutex_unlock(&output_mtx);
+}
+
+void serve_topk_age_ranges(char *query, ipv4_socket connected_socket) {
+  message message;
+  // Update client that is going to receive a single message
+  message = message_create("1", RESPONSE);
+  if (!ipv4_socket_send_message(&connected_socket, message)) {
+    report_warning("Message <%s> could not be sent to client!", (char*) message.data);
+  }
+  message_destroy(&message);
+  // Send result back to client
+  message = message_create("NOT YET", RESPONSE);
+  if (!ipv4_socket_send_message(&connected_socket, message)) {
+    report_warning("Message <%s> could not be sent to client!", (char*) message.data);
+  }
+  message_destroy(&message);
+  // Print query and response to server
+  pthread_mutex_lock(&output_mtx);
+  printf("Q: %s\n", query);
+  printf("R: NOT YET\n");
   pthread_mutex_unlock(&output_mtx);
 }
 
@@ -123,7 +144,7 @@ void handle_queries(char *query, ipv4_socket connected_socket) {
   if (!strcmp(p.we_wordv[0], "/diseaseFrequency")) {
     SERVE_DISEASE_FREQUENCY(query, connected_socket);
   } else if (!strcmp(p.we_wordv[0], "/topk-AgeRanges")) {
-    printf("%s\n", p.we_wordv[0]);
+    SERVE_TOPK_AGE_RANGES(query, connected_socket);
   } else if (!strcmp(p.we_wordv[0], "/searchPatientRecord")) {
     SERVE_SEACH_PATIENT_RECORD(query, connected_socket);
   } else if (!strcmp(p.we_wordv[0], "/numPatientAdmissions")) {

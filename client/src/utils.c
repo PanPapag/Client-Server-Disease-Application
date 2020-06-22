@@ -42,11 +42,12 @@ static void* __client_threads_function(void *fl) {
 		// for this specific query
 		message = ipv4_socket_get_message(&server_socket);
 		size_t no_messages = atoi((char*) message.data);
+		message_destroy(&message);
+		// Using mutex for clear structured output
+		pthread_mutex_lock(&mtx);
 		// Get no_messages message from the server
 		for (size_t i = 0U; i < no_messages; ++i) {
 			message = ipv4_socket_get_message(&server_socket);
-			// Using mutex for clear output
-			pthread_mutex_lock(&mtx);
 			if (i == 0U) {
 				printf("Q: %s\n", query);
 			}
@@ -61,10 +62,11 @@ static void* __client_threads_function(void *fl) {
 					printf("R: -\n");
 				}
 			}
-			pthread_mutex_unlock(&mtx);
 			// Clear message
 			message_destroy(&message);
 		}
+		// Unlock mutex as the printing finished
+		pthread_mutex_unlock(&mtx);
 	}
 	pthread_exit(0);
 }
@@ -94,6 +96,7 @@ void parse_query_file_and_create_threads(pthread_t *client_threads) {
   if (options.num_threads >= num_queries) {
     /* Initialize pthread barrier */
     pthread_barrier_init(&barrier, NULL, num_queries);
+		pthread_mutex_init(&mtx, 0);
     for (size_t i = 0U; i < num_queries; ++i) {
       /* Read query and store it to the buffer */
       fgets(buffer[i], MAX_BUFFER_SIZE, fp);
@@ -106,6 +109,7 @@ void parse_query_file_and_create_threads(pthread_t *client_threads) {
     for (size_t i = 0U; i < num_queries; ++i) {
       pthread_join(client_threads[i], NULL);
     }
+		pthread_mutex_destroy(&mtx);
 		pthread_barrier_destroy(&barrier);
   } else {
     size_t integral_comm = num_queries / options.num_threads;
@@ -114,6 +118,7 @@ void parse_query_file_and_create_threads(pthread_t *client_threads) {
     for (size_t i = 0U; i < integral_comm; ++i) {
       /* Initialize pthread barrier to wait num_threads threads */
       pthread_barrier_init(&barrier, NULL, options.num_threads );
+			pthread_mutex_init(&mtx, 0);
       for (size_t j = 0U; j < options.num_threads; ++j) {
         /* Read query and store it to the buffer */
         fgets(buffer[j], MAX_BUFFER_SIZE, fp);
@@ -126,12 +131,14 @@ void parse_query_file_and_create_threads(pthread_t *client_threads) {
       for (size_t j = 0U; j < options.num_threads; ++j) {
         pthread_join(client_threads[j], NULL);
       }
+			pthread_mutex_destroy(&mtx);
       pthread_barrier_destroy(&barrier);
     }
     /* Complete the remaining ones */
     if (remaining_comm) {
       /* Initialize pthread barrier to wait remaining_comm threads */
       pthread_barrier_init(&barrier, NULL, remaining_comm);
+			pthread_mutex_init(&mtx, 0);
       for (size_t j = 0U; j < remaining_comm; ++j) {
         /* Read query and store it to the buffer */
         fgets(buffer[j], MAX_BUFFER_SIZE, fp);
@@ -144,6 +151,7 @@ void parse_query_file_and_create_threads(pthread_t *client_threads) {
       for (size_t j = 0U; j < remaining_comm; ++j) {
         pthread_join(client_threads[j], NULL);
       }
+			pthread_mutex_destroy(&mtx);
       pthread_barrier_destroy(&barrier);
     }
   }
