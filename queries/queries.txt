@@ -1,1 +1,5 @@
 /numPatientAdmissions H1N1 01-01-2020 08-01-2020 China
+/numPatientAdmissions H1N1 01-01-2020 08-01-2020
+/numPatientDischarges SARS-1 08-01-2020 08-01-2020
+/numPatientDischarges FLU-2018 05-01-2020 05-01-2020 France
+/diseaseFrequency SARS-1 02-01-2020 09-01-2020 Argentina
