@@ -5,6 +5,11 @@
   #include "../../common/includes/list.h"
 
   /**
+    \brief Runs as daemon. If a workers suddenly dies, master will spawn a new one
+  */
+  void watch_workers(void);
+
+  /**
     \brief A wrapper function which call distribute_subdirs and get_subdirs
       while updating master_options workers_dir_paths
   */
@@ -14,6 +19,7 @@
     \brief A wrapper function which call update_worker for each worker proccess
   */
   void update_workers(void);
+  void update_worker(pid_t, int);
 
   /**
     \brief Create options.num_workers child proccesses and exec the worker executable
@@ -30,5 +36,5 @@
     \brief Clears all the memory allocated by maste
   */
   void clear_memory(void);
-  
+
 #endif

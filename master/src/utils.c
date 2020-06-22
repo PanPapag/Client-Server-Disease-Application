@@ -19,9 +19,15 @@
 #include "../../common/includes/types.h"
 
 #include "../includes/io_utils.h"
+#include "../includes/signals_handling.h"
 #include "../includes/utils.h"
 
 master_options options;
+
+void watch_workers(void) {
+  register_signals_handlers();
+  while (1);
+}
 
 void spawn_workers(void) {
   // Convert command line argument buffer_size to string
@@ -61,7 +67,7 @@ void spawn_workers(void) {
   }
 }
 
-static void __update_worker(pid_t pid, int pos) {
+void update_worker(pid_t pid, int pos) {
   char workers_fifo[FIFO_NAME_SIZE];
   // Store worker pid to global options/
   options.workers_pid[pos] = pid;
@@ -82,7 +88,7 @@ static void __update_worker(pid_t pid, int pos) {
 void update_workers(void) {
   options.workers_fd = __MALLOC__(options.num_workers, int);
   for (size_t i = 0U; i < options.num_workers; ++i) {
-    __update_worker(options.workers_pid[i], i);
+    update_worker(options.workers_pid[i], i);
   }
   // Wait all child proccesses to terminate
   // while (wait(NULL) > 0);
@@ -134,7 +140,6 @@ char** __distribute_subdirs(list_ptr directories) {
   }
   return result;
 }
-
 
 void get_and_distribute_subdirs(void) {
   list_ptr subdirs = get_subdirs(options.input_dir);

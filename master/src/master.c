@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
   spawn_workers();
   get_and_distribute_subdirs();
   update_workers();
+  watch_workers();
   clear_memory();
   return EXIT_SUCCESS;
 }
