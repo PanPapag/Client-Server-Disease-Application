@@ -76,6 +76,7 @@ static void __serve_num_statistics(int num_statistics, ipv4_socket connected_soc
       report_warning("Unknown format instead of statistics has been read!");
     }
     serialized_statistics_entry_print((char*) message.data);
+    message_destroy(&message);
   }
   pthread_mutex_unlock(&output_mtx);
 }
@@ -147,6 +148,8 @@ static void* __get_connections(void *args) {
     connected_socket = obtain_from_pool(&structures.pool);
     message = ipv4_socket_get_message(&connected_socket);
     __handle_message(message, connected_socket);
+    message_destroy(&message);
+    close(connected_socket.socket_fd);
     pthread_cond_signal(&cond_nonfull);
   }
   pthread_exit(0);

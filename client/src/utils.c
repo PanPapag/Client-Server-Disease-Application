@@ -68,6 +68,9 @@ static void* __client_threads_function(void *fl) {
 		// Unlock mutex as the printing finished
 		pthread_mutex_unlock(&mtx);
 	}
+	// Close server socket
+	close(server_socket.socket_fd);
+	// Exit thread
 	pthread_exit(0);
 }
 
