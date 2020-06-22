@@ -2,7 +2,7 @@ BDIR := build
 
 CC := gcc
 CFLAGS := -std=gnu99 -g3
-LFLAGS := -lpthread
+LFLAGS := -lpthread -lm
 
 $(shell mkdir -p $(BDIR))
 

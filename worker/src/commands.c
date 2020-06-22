@@ -1,3 +1,4 @@
+#include <math.h>
 #include <setjmp.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -218,14 +219,22 @@ void execute_topk_age_ranges(char **argv) {
         if (result != NULL) {
           age_groups_stats_ptr age_groups_stats_entry = (age_groups_stats_ptr) result;
           double age_group_per = (double) age_groups_stats_entry->no_patients / total_num_patients * 100;
-          char output_buffer[MAX_BUFFER_SIZE];
-          char* age_group_name = get_age_group_name(age_groups_stats_entry->age_group);
-          sprintf(output_buffer, "%s: %0.2f%%", age_group_name, age_group_per);
-          message = message_create(output_buffer, RESPONSE);
-          if (!ipv4_socket_send_message(&server_socket, message)) {
-            report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+          if (!isnan(age_group_per)) {
+            char output_buffer[MAX_BUFFER_SIZE];
+            char* age_group_name = get_age_group_name(age_groups_stats_entry->age_group);
+            sprintf(output_buffer, "%s: %0.2f%%", age_group_name, age_group_per);
+            message = message_create(output_buffer, RESPONSE);
+            if (!ipv4_socket_send_message(&server_socket, message)) {
+              report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+            }
+            message_destroy(&message);
+          } else {
+            message = message_create(NO_RESPONSE, RESPONSE);
+            if (!ipv4_socket_send_message(&server_socket, message)) {
+              report_warning("Message <%s> could not be sent to server!", (char*) message.data);
+            }
+            message_destroy(&message);
           }
-          message_destroy(&message);
         }
       }
       /* Clear memory allocated */
