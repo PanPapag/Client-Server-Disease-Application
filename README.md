@@ -6,4 +6,4 @@ The aim of this project is to demonstrate the utility of multithreaded programmi
 2. A multithreaded server program ```whoServer``` which collects network summary statistics from ```Worker``` processes and queries from ```clients```
 3. A multithreaded client program ```whoClient``` which creates many threads, where each thread plays the role of a client sending queries to ```whoServer```.
 
-
+![](system_design.png)
