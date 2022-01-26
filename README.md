@@ -30,3 +30,13 @@ Each Worker process, for each directory assigned to it, reads all its files in c
 2. The summary statistics (same as [Disease-Aggregator-Application](https://github.com/PanPapag/Disease-Aggregator-Application)).
 
 When the Worker process finishes transmitting information to whoServer, it will listen to the port number it has selected and wait for connections from whoServer for requests to the countries it manages. The signal handling remains the same as [Disease-Aggregator-Application](https://github.com/PanPapag/Disease-Aggregator-Application).
+
+## whoServer
+
+The program ```whoServer``` will be used as follows:
+
+```./whoServer –q queryPortNum -s statisticsPortNum –w numThreads –b bufferSize```
+
+where:
+
+* The ```queryPortNum``` parameter
