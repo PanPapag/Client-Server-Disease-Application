@@ -39,4 +39,36 @@ The program ```whoServer``` will be used as follows:
 
 where:
 
-* The ```queryPortNum``` parameter
+* The ```queryPortNum``` parameter is a port number where the whoServer will listen for connections with queries from the whoClient.
+* The ```statisticsPortNum``` parameter is a port number where the whoServer will listen for connections with summary statistics from worker processes.
+* The ```numThreads``` parameter is the number of threads that the whoServer will create to serve incoming network connections. These threads will be created once at the start when the whoServer starts.
+* The ```bufferSize``` parameter is the size of a circular buffer that will be shared among the threads created by the whoServer process. The bufferSize represents the number of file/socket descriptors that can be stored in it (e.g. 10 means 10 descriptors).
+
+When the whoServer starts, the initial (main process) thread creates ```numThreads``` threads. The initial thread listens on the ```queryPortNum``` and ```statisticsPortNum``` ports, accepts connections with the accept() system call, and will place the file/socket descriptors corresponding to the connections in a circular buffer of size specified by ```bufferSize```. The initial thread does not read from the connections it accepts. It simply places the file descriptor returned by accept() in the buffer and continues to accept further connections whenever it receives a connection. The job of the ```numThreads``` threads is to serve the connections whose corresponding file descriptors have been placed in the buffer. Each of the ```numThreads``` threads wakes up when there is at least one descriptor in the buffer.
+
+Specifically, the initial thread listens on the ```statisticsPortNum``` for connections from worker processes to receive summary statistics and the port number where each worker process is listening, and listens on the ```queryPortNum``` for connections from the whoClient to receive queries about outbreaks recorded in the distributed processing system.
+
+The whoServer accepts and serves the following requests that come from the whoClient:
+
+* ```/diseaseFrequency virusName date1 date2 [country]```
+
+  If the ```country``` argument is not given, the application will print the number of cases of the disease ```virusName``` recorded in the system within the period ```[date1...date2]```. If the ```country``` argument is given, the application will print the number of cases of the disease ```virusName``` in the ```country``` recorded within the period ```[date1...date2]```. The ```date1``` and ```date2``` arguments will have the format DD-MM-YYYY.
+  
+* ```/topk-AgeRanges k country disease date1 date2```
+
+  The application will print the top k age categories for the ```country``` and ```disease``` that have reported cases of the specific disease in the specific country and the percentage of cases for them. The ```date1``` and ```date2``` arguments will be in the form DD-MM-YYYY. 
+  
+* ```/searchPatientRecord recordID```
+
+    The parent process sends the request to all Workers through named pipes and waits for a response from the Worker with the record recordID. When it receives it, it prints it.
+
+* ```/numPatientAdmissions disease date1 date2 [country]```
+
+  If a ```country``` argument is given, the application will print, on a new line, the total number of patients with the ```disease``` who entered the hospital in that country within the period ```[date1 date2]```. If no ```country``` argument is given, the application will print, for each country, the number of patients with the ```disease``` who entered the hospital in the period ```[date1 date2]```. The ```date1 date2``` arguments will be in the DD-MM-YYYY format.
+
+ * ```/numPatientDischarges disease date1 date2 [country]```
+
+    If the ```country``` argument is given, the application will print, on a new line, the total number of patients with the ```disease``` who have left the hospital in that country within the period ```[date1 date2]```. If no ```country``` argument is given, the application will print, for each country, the number of patients with the ```disease``` who have left the hospital in the period ```[date1 date2]```. The ```date1 date2``` arguments will be in the DD-MM-YYYY format.
+    
+When the whoServer receives a query, it forwards it to the relevant worker processes via a socket and waits for the response from the workers. The query forwarded to a worker process, along with the responses received by the whoServer from that worker, are printed to stdout. The whoServer also forwards the response to the corresponding thread of the whoClient that made the query.
+
