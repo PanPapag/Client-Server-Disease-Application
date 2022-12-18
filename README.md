@@ -72,3 +72,24 @@ The whoServer accepts and serves the following requests that come from the whoCl
     
 When the whoServer receives a query, it forwards it to the relevant worker processes via a socket and waits for the response from the workers. The query forwarded to a worker process, along with the responses received by the whoServer from that worker, are printed to stdout. The whoServer also forwards the response to the corresponding thread of the whoClient that made the query.
 
+## whoClient
+
+The whoClient program will be used as follows:
+
+```./whoClient –q queryFile -w numThreads –sp servPort –sip servIP```
+
+- The ```queryFile``` parameter is the file that contains the queries that need to be sent to the whoServer.
+- The ```numThreads``` parameter is the number of threads that the whoClient will create to send queries to the whoServer.
+- The ```servPort``` parameter is the port number where the whoServer is listening, to which the whoClient will connect.
+- The ```servIP``` parameter is the IP address of the whoServer to which the whoClient will connect.
+
+The operation of the multithreaded whoClient is as follows. It will start and open the queryFile file, which it will read line by line. Each line will contain a command that the whoServer can accept. For each command, a thread will be created that will be responsible for sending a command (i.e., one line) to the whoServer. The thread will be created but will not immediately connect to the whoServer. When all threads are created, i.e. we have a thread for each command in the file, then the threads should all start together and try to connect to the whoServer and send their command. When the command is sent, each thread will print the response it received from the whoServer to stdout and may terminate. When all threads have finished, the whoClient will terminate as well.
+
+## Compilation and Run
+Type ```make```.
+
+The executable will be under the folder ```build```.
+
+## License
+
+This project is licensed under the MIT License.
